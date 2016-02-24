@@ -45,7 +45,7 @@ class PacketCapture(object):
 
     def calcKLDistance(self, testSeq, grndTruthSeq):
         '''
-        Coincidentally the Kulback-Leilber Divergence (KL-distance) Test is actually somehow similar to Entropy
+        Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
         where: entropy(pk, qk, base)
         NB: 'pk' and 'qk' must have the same length
         :return:
@@ -53,11 +53,13 @@ class PacketCapture(object):
         kLdistResult = entropy(testSeq, grndTruthSeq)
         return kLdistResult
 
-    def calcSpearman(self):
+    def calcSpearman(self, testSeq, grndTruthSeq):
         '''
         Calculate
         :return:
         '''
+        rho, pVal = spearmanr(testSeq, grndTruthSeq)
+        return spearmanr(testSeq, grndTruthSeq)
 
     def calcPearson(self):
         '''
@@ -126,7 +128,7 @@ print("Intialized ... ")
 httpCapture.getHttpReqEntropy()
 
 ## Calculate Kullback-Leibler Divergence
-#compKsResult = httpCapture.calcKLDistance(httpCapture.getHttpReqEntropy(),httpOvrDnsCap.getHttpReqEntropy())
+#compKsResult = httpCapture.calcKLDistance(httpOvrDnsCap.getHttpReqEntropy(), httpCapture.getHttpReqEntropy())
 #print("2-Sample Kullback-Leibler Distance result: ", compKsResult)
 
 httpCapture.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
