@@ -43,6 +43,27 @@ class PacketCapture(object):
             h += prob * math.log((1/prob),2)
         return h
 
+    def getEquiSampleLen(self, testSeq, grndTruthSeq):
+        '''
+        - Determines the lengths of the two sequences
+        - Selects 95% of the packets of the shorter sample
+        :return:
+        '''
+        newSeqLen = (int(math.ceil(0.95 * len(testSeq)))
+                     if len(testSeq) < len(grndTruthSeq)
+                     else int(math.ceil(0.95 * len(grndTruthSeq))))
+        print("New Equalized Sequence Length: ", newSeqLen)
+        return newSeqLen
+
+    def doSampling(self):
+        '''
+        Given the new equivalent sample length from getEquiSampleLen():
+        - Randomly select a continuous sequence of values of the given length between Packet 1 and the length of the Packet
+        - Returns 2 samples of the same length; one from the test sample and one from the "ground truth"
+        :return:
+        '''
+
+
     def calcKLDistance(self, testSeq, grndTruthSeq):
         '''
         Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
@@ -58,14 +79,15 @@ class PacketCapture(object):
         Calculate
         :return:
         '''
-        rho, pVal = spearmanr(testSeq, grndTruthSeq)
-        return spearmanr(testSeq, grndTruthSeq)
+        rho, pVal = spearmanr(testSeq, grndTruthSeq, axis=0)
+        return spearmanr(testSeq, grndTruthSeq, axis=0)
 
     def calcPearson(self):
         '''
         Calculate
         :return:
         '''
+
 
 
     def doPlot(self, plotTitle, xlbl, ylbl):
@@ -96,6 +118,24 @@ class PacketCapture(object):
         Get the Entropy of
         :return:
         '''
+
+    def getIpPacketEntropy(self):
+        '''
+
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap if IP in pkt]
+        return self.pktCharEntropySeq
+
+    def getDNSPacketEntropy(self):
+        '''
+
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
+                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
+        return self.pktCharEntropySeq
 
 
     def getHttpReqEntropy(self):
@@ -129,7 +169,14 @@ httpCapture.getHttpReqEntropy()
 
 ## Calculate Kullback-Leibler Divergence
 #compKsResult = httpCapture.calcKLDistance(httpOvrDnsCap.getHttpReqEntropy(), httpCapture.getHttpReqEntropy())
-#print("2-Sample Kullback-Leibler Distance result: ", compKsResult)
+#print("Kullback-Leibler Distance result: ", compKsResult)
+
+## Calculcate Spearman coefficient of correlation
+#spearmanCoeff = httpCapture.calcSpearman(httpOvrDnsCap.getHttpReqEntropy(),httpCapture.getHttpReqEntropy())
+#print("Spearman Correlation Coefficient: ", spearmanCoeff)
+
+##
+httpCapture.doSampleEqualizer(httpOvrDnsCap.getDNSPacketEntropy(), httpCapture.getHttpReqEntropy())
 
 httpCapture.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
