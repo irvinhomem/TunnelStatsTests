@@ -1,11 +1,12 @@
 from scapy.all import *
-from collections import Counter
+from collections import Counter, namedtuple
 from scipy.stats import kstest
 from scipy.stats import entropy, spearmanr, pearsonr
 from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
 
 import matplotlib.pyplot as plt
 import math
+import random
 import sklearn
 import time
 
@@ -25,6 +26,8 @@ class PacketCapture(object):
         #self.fig, self.ax = plt.subplots()
         self.fig = plt.figure()
         self.ax = plt.axes()
+        #self.twoTestSamples = namedtuple("SampledSequences", ['x','y'])
+        self.twoTestSamples= dict(testSeq=[],grndTruthSeq=[])
 
         print("Finished initializing and reading pcap file ...")
         print("Type : ", type(self.cap))
@@ -55,23 +58,46 @@ class PacketCapture(object):
         print("New Equalized Sequence Length: ", newSeqLen)
         return newSeqLen
 
-    def doSampling(self):
+    def getTwoEquiLenSamples(self, testSeq, grndTruthSeq):
         '''
         Given the new equivalent sample length from getEquiSampleLen():
         - Randomly select a continuous sequence of values of the given length between Packet 1 and the length of the Packet
         - Returns 2 samples of the same length; one from the test sample and one from the "ground truth"
-        :return:
+        :return: A named tuple containing the s list/seq samples (x,y)
         '''
+        newSeqLen = self.getEquiSampleLen(testSeq, grndTruthSeq)
+        testSeqStart = random.randint(1, len(testSeq)-newSeqLen)
+        grndTruthSeqStart = random.randint(1, len(grndTruthSeq)-newSeqLen)
+
+        #self.twoTestSamples(
+        #    x=testSeq[testSeqStart:testSeqStart+newSeqLen],
+        #    y= grndTruthSeq[grndTruthSeqStart:grndTruthSeqStart+newSeqLen])
+        newTestSeqList = testSeq[testSeqStart:testSeqStart+newSeqLen]
+        newgrndTruthSeqList = grndTruthSeq[grndTruthSeqStart:grndTruthSeqStart+newSeqLen]
+
+        # self.twoTestSamples.append(testSeq[testSeqStart:testSeqStart+newSeqLen])
+        # self.twoTestSamples.append(testSeq[testSeqStart:testSeqStart+newSeqLen])
+        self.twoTestSamples["testSeq"] = newTestSeqList
+        self.twoTestSamples["grndTruthSeq"] = newgrndTruthSeqList
 
 
-    def calcKLDistance(self, testSeq, grndTruthSeq):
+        #print("Test X: ", self.twoTestSamples["testSeq"])
+        #print("Test Y: ", self.twoTestSamples["grndTruthSeq"])
+        #0.00839789398451
+
+        return self.twoTestSamples
+
+    def calcKLDistance(self, twoTestSamples):
         '''
         Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
         where: entropy(pk, qk, base)
         NB: 'pk' and 'qk' must have the same length
         :return:
         '''
-        kLdistResult = entropy(testSeq, grndTruthSeq)
+        print("Type Sample X(testSeq): ", (twoTestSamples["testSeq"]))
+        print("Type Sample Y(grndTruthSeq): ", (twoTestSamples["grndTruthSeq"]))
+        #kLdistResult = entropy(twoTestSamples.x, twoTestSamples.y)
+        kLdistResult = entropy(twoTestSamples["testSeq"], twoTestSamples["grndTruthSeq"])
         return kLdistResult
 
     def calcSpearman(self, testSeq, grndTruthSeq):
@@ -111,8 +137,6 @@ class PacketCapture(object):
         self.fig.waitforbuttonpress()
         #time.sleep(10)
 
-
-
     def getFtpPktEntropy(self):
         '''
         Get the Entropy of
@@ -128,7 +152,7 @@ class PacketCapture(object):
                                   for pkt in self.cap if IP in pkt]
         return self.pktCharEntropySeq
 
-    def getDNSPacketEntropy(self):
+    def getDnsPktEntropy(self):
         '''
 
         :return:
@@ -169,14 +193,17 @@ httpCapture.getHttpReqEntropy()
 
 ## Calculate Kullback-Leibler Divergence
 #compKsResult = httpCapture.calcKLDistance(httpOvrDnsCap.getHttpReqEntropy(), httpCapture.getHttpReqEntropy())
-#print("Kullback-Leibler Distance result: ", compKsResult)
+#compKsResult = httpCapture.calcKLDistance(httpOvrDnsCap.getDnsPktEntropy(), httpCapture.getHttpReqEntropy())
+compKsResult = httpCapture.calcKLDistance(
+    httpCapture.getTwoEquiLenSamples(httpOvrDnsCap.getDnsPktEntropy(), httpCapture.getHttpReqEntropy()))
+print("Kullback-Leibler Distance result: ", compKsResult)
 
 ## Calculcate Spearman coefficient of correlation
 #spearmanCoeff = httpCapture.calcSpearman(httpOvrDnsCap.getHttpReqEntropy(),httpCapture.getHttpReqEntropy())
 #print("Spearman Correlation Coefficient: ", spearmanCoeff)
 
 ##
-httpCapture.doSampleEqualizer(httpOvrDnsCap.getDNSPacketEntropy(), httpCapture.getHttpReqEntropy())
+#httpCapture.doSampleEqualizer(httpOvrDnsCap.getDnsPktEntropy(), httpCapture.getHttpReqEntropy())
 
 httpCapture.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
