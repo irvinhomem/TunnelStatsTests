@@ -100,10 +100,13 @@ class PacketCapture(object):
             # Check which statistical measure we are calculating
             if stat_measure == "KL-Divergence":
                 runningSum += self.calcKLDistance(twoSamples)
+                continue
             elif stat_measure == "SpearmanR":
                 runningSum += self.calcSpearman()
+                continue
             elif stat_measure == "Pearson":
                 runningSum += self.calcPearson()
+                continue
 
         avg =  runningSum/sample_rounds
 
