@@ -63,7 +63,7 @@ class PacketCapture(object):
         Given the new equivalent sample length from getEquiSampleLen():
         - Randomly select a continuous sequence of values of the given length between Packet 1 and the length of the Packet
         - Returns 2 samples of the same length; one from the test sample and one from the "ground truth"
-        :return: A named tuple containing the s list/seq samples (x,y)
+        :return: A Dictionary containing the 2 list/seq samples (testSeq,grndTruthSeq)
         '''
         newSeqLen = self.getEquiSampleLen(testSeq, grndTruthSeq)
         testSeqStart = random.randint(1, len(testSeq)-newSeqLen)
@@ -87,20 +87,42 @@ class PacketCapture(object):
 
         return self.twoTestSamples
 
-    def calcKLDistance(self, twoTestSamples):
+    def calcStatMeasureAvg(self, stat_measure, twoSamples, sample_rounds):
+        '''
+        For the given stat_measure of choice (KL-Divergence, SpearmanR, Pearson) do a number of sampling rounds
+        (given by 'sample_rounds') and get the average
+        :return:
+        '''
+        #runningAvg = 0
+        runningSum = 0
+
+        for i in range(sample_rounds):
+            # Check which statistical measure we are calculating
+            if stat_measure == "KL-Divergence":
+                runningSum += self.calcKLDistance(twoSamples)
+            elif stat_measure == "SpearmanR":
+                runningSum += self.calcSpearman()
+            elif stat_measure == "Pearson":
+                runningSum += self.calcPearson()
+
+        avg =  runningSum/sample_rounds
+
+        return avg
+
+    def calcKLDistance(self, twoSamples):
         '''
         Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
         where: entropy(pk, qk, base)
         NB: 'pk' and 'qk' must have the same length
         :return:
         '''
-        print("Type Sample X(testSeq): ", (twoTestSamples["testSeq"]))
-        print("Type Sample Y(grndTruthSeq): ", (twoTestSamples["grndTruthSeq"]))
+        print("Type Sample X(testSeq): ", (twoSamples["testSeq"]))
+        print("Type Sample Y(grndTruthSeq): ", (twoSamples["grndTruthSeq"]))
         #kLdistResult = entropy(twoTestSamples.x, twoTestSamples.y)
-        kLdistResult = entropy(twoTestSamples["testSeq"], twoTestSamples["grndTruthSeq"])
+        kLdistResult = entropy(twoSamples["testSeq"], twoSamples["grndTruthSeq"])
         return kLdistResult
 
-    def calcSpearman(self, testSeq, grndTruthSeq):
+    def calcSpearman(self, twoSamples):
         '''
         Calculate
         :return:
