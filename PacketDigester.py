@@ -1,9 +1,9 @@
-from scapy.all import *
-from collections import Counter, namedtuple
-import math
-import random
-
-import MetaPacketCap
+# from scapy.all import *
+# from collections import Counter, namedtuple
+# import math
+# import random
+#
+# import MetaPacketCap
 
 class PacketDigester(object):
 

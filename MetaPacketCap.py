@@ -1,5 +1,5 @@
-import PacketAnalyzer
-import PacketDigester
+# import PacketAnalyzer
+# import PacketDigester
 
 from scapy.all import *
 from collections import Counter, namedtuple
@@ -15,17 +15,12 @@ class MetaPacketCap(object):
         self.pktCharEntropySeq = []
         self.specificPktLens = []
 
+        #self.fig, self.ax = plt.subplots()
+        self.fig = plt.figure()
+        self.ax = plt.axes()
+
         print("Finished initializing and reading pcap file ...")
         print("Type : ", type(self.cap))
-
-    # def set_file_path(self, file_path):
-    #     self.pcapFilePath = file_path
-    #
-    # def get_pkt_char_entropy_seq(self):
-    #     return self.pktCharEntropySeq
-    #
-    # def get_pkt_lens(self):
-    #     return self.specificPktLens
 
     def calcEntropy(self, myFreqDict):
         '''
@@ -81,3 +76,24 @@ class MetaPacketCap(object):
         self.specificPktLens = [len(pkt[IP][TCP][Raw].load)
                            for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
         return self.specificPktLens
+
+    def doPlot(self, plotTitle, xlbl, ylbl):
+        '''
+        Plot the points given from the given sequence
+        '''
+        #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
+        self.ax = self.fig.add_subplot(1,1,1)
+        self.ax.plot(self.pktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="None", color="blue")
+        #plt.scatter(perPktCharEntropySeq)  # missing 'y' value ... but actually it's the x value that we need
+        #self.fig.add_subplot()
+        self.ax.set_title(plotTitle, size = 16)
+        #self.fig.
+        #self.fig.add_axes(xlabel=xlbl, ylabel=ylbl)
+        self.ax.set_xlabel(xlbl, size=11)
+        self.ax.set_ylabel(ylbl, size=11)
+        #self.ax.xlabel("Packet Sequence (Time)", size=11)
+        #self.ax.ylabel("Byte (Char) Entropy per packet", size=11)
+        self.fig.show()
+        #self.fig.savefig()
+        self.fig.waitforbuttonpress(timeout= -1)
+        #time.sleep(10)

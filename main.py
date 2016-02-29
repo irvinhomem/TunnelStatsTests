@@ -13,49 +13,73 @@ httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap")
 httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
 print("Initialized ... ")
 
-# Get basic measurements set
-#httpMcap.getHttpReqEntropy()
-#httpOvrDnsMetaCap.getDnsPktEntropy()
-
-#httpMcap.getHttpReEntropy()
-#httpOvrDnsMetaCap
-
 pktDgstr = PacketDigester()
-# packetPops = pktDgstr.getPopulationLists(httpMcap.getHttpReqEntropy(), httpOvrDnsMetaCap.getDnsPktEntropy())
-# print("Packet Population Sequences Type: ", type(len(packetPops['testSeq'])))
-# print("Packet Population Sequences len: ", len(packetPops['testSeq']))
-
 pktAnlyzr = PacketAnalyzer()
 
-avg20Samples = pktAnlyzr.calcStatMeasureAvg(
+# Calculate KL-Divergence over 20 Samples
+avgKLD20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
     "KL-Divergence",
     pktDgstr.getPopulationLists(
         httpOvrDnsMetaCap.getDnsPktEntropy(),
         httpMcap.getHttpReqEntropy()),
     20)
 
-print("Kullback-Leibler Distance Average of 20 Sampling Rounds: ", avg20Samples)
+print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
+       "HTTP and HTTP-over-DNS", avgKLD20Samples)
+pktAnlyzr.doScatterPlot(KLDivVals,'red', 'Spearman', 'Sample Round', 'KL-Distance')
+#-------
 
-## Calculate Kullback-Leibler Divergence
-#compKsResult = httpCapture.calcKLDistance(
-#    httpCapture.getTwoEquiLenSamples(httpOvrDnsCap.getDnsPktEntropy(), httpCapture.getHttpReqEntropy()))
-#print("Kullback-Leibler Distance result: ", compKsResult)
-
-# Calculate Averaged Kullback-Leibler Divergence
-# avg20Samples = httpCapture.calcStatMeasureAvg(
-#     "KL-Divergence",
-#     httpCapture.getTwoEquiLenSamples(
-#         httpOvrDnsCap.getDnsPktEntropy(),
-#         httpCapture.getHttpReqEntropy()),
-#     20)
+# # Calculate Single Sample KL Divergence
+# compKLDresult = pktAnlyzr.calcKLDistance(
+#     pktAnlyzr.getTwoEquiLenSamples(
+#         httpOvrDnsMetaCap.getDnsPktEntropy(),
+#         httpMcap.getHttpReqEntropy()))
 #
-# print("Kullback-Leibler Distance Average of 20 Tests: ", avg20Samples)
+# print("Kullback-Leibler Distance of a Single Sample: ", compKLDresult)
+#-------
 
-## Calculcate Spearman Ranked coefficient of correlation
-#spearmanCoeff = httpCapture.calcSpearman(httpOvrDnsCap.getHttpReqEntropy(),httpCapture.getHttpReqEntropy())
-#print("Spearman Correlation Coefficient: ", spearmanCoeff)
+# # Calculate Spearman Ranking Coefficient of Correlation over 20 Samples
+# spearman20avg, spearmanVals = pktAnlyzr.calcStatMeasureAvg(
+#     "SpearmanR",
+#     pktDgstr.getPopulationLists(
+#         httpOvrDnsMetaCap.getDnsPktEntropy(),
+#         httpMcap.getHttpReqEntropy()),
+#     1000)
+#
+# print("Spearman Ranked Corr Coeff Average of 20 Sampling Rounds: \n"
+#       "HTTP and HTTP-over-DNS", spearman20avg)
+# pktAnlyzr.doScatterPlot(spearmanVals,'red', 'Spearman', 'Sample Round', 'Correlation Coefficent')
+#--------
 
-##
-#httpCapture.doSampleEqualizer(httpOvrDnsCap.getDnsPktEntropy(), httpCapture.getHttpReqEntropy())
+# # Calculate Single Sample Spearman Ranked coefficient of correlation
+# spearmanCoeff = pktAnlyzr.calcSpearman(
+#     pktAnlyzr.getTwoEquiLenSamples(httpOvrDnsMetaCap.getDnsPktEntropy(),
+#     httpMcap.getHttpReqEntropy()))
+#
+# print("Spearman Correlation Coefficient: ", spearmanCoeff)
+#---------
 
-# httpCapture.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+# # Calculate Pearson Correlation Co-efficient over 20 Samples
+# pearson20avg, pearsonVals = pktAnlyzr.calcStatMeasureAvg(
+#     "Pearson",
+#     pktDgstr.getPopulationLists(
+#         httpOvrDnsMetaCap.getDnsPktEntropy(),
+#         httpMcap.getHttpReqEntropy()),
+#     1000)
+#
+# print("Pearson Corr Coeff Average of 20 Sampling Rounds: \n"
+#       "HTTP and HTTP-over-DNS", pearson20avg)
+# pktAnlyzr.doScatterPlot(pearsonVals,'red', 'Pearson', 'Sample Round', 'Correlation Coefficent')
+
+# # Calculate Single Sample Pearson correlation coefficient
+# pearsonCoeff = pktAnlyzr.calcPearson(
+#     pktAnlyzr.getTwoEquiLenSamples(httpOvrDnsMetaCap.getDnsPktEntropy(),
+#     httpMcap.getHttpReqEntropy()))
+#
+# print("Pearson Correlation Coefficient: ", pearsonCoeff)
+
+# # Just for getting the variables initialized for plotting
+# httpMcap.getHttpReqEntropy()
+# httpOvrDnsMetaCap.getDnsPktEntropy()
+#
+# httpMcap.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")

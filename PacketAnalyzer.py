@@ -1,5 +1,6 @@
 # from scapy.all import *
 # from collections import Counter, namedtuple
+
 from scipy.stats import kstest
 from scipy.stats import entropy, spearmanr, pearsonr
 # from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
@@ -12,7 +13,7 @@ import random
 import sklearn
 import time
 
-from PacketDigester import PacketDigester
+# from PacketDigester import PacketDigester
 
 
 class PacketAnalyzer(object):
@@ -22,19 +23,9 @@ class PacketAnalyzer(object):
 
     def __init__(self):
         '''Do initialization stuff'''
-        #self.pktDgstr = PacketDigester()
 
-        # self.twoTestSamples = namedtuple("SampledSequences", ['x','y'])
-        # self.twoTestSamples= dict(testSeq=[],grndTruthSeq=[])
-        # self.population = testSampleSeqs
-
-        # self.multiSampleSeq= dict(testSeq=[],grndTruthSeq=[])
-        # print("Sequence length submitted to PacketAnalzyer: ", len(self.multiSampleSeq['testSeq']))
-
-        #self.fig, self.ax = plt.subplots()
         self.fig = plt.figure()
         self.ax = plt.axes()
-
         print("Finished initializing Analysis stuff ...")
         # print("Type : ", type(self.cap))
 
@@ -88,7 +79,6 @@ class PacketAnalyzer(object):
         (given by 'sample_rounds') and get the average
         :return:
         '''
-
         print("In calcStatMeasureAvg :: 'testPopulations length': ", len(testPopulationSeqs['testSeq']))
 
         #runningAvg = 0
@@ -105,18 +95,18 @@ class PacketAnalyzer(object):
                 #runningSum += self.calcKLDistance(twoSamples)
                 continue
             elif stat_measure == "SpearmanR":
-                runningSum.append(self.calcSpearman())
+                runningSum.append(self.calcSpearman(twoSamples))
                 #runningSum += self.calcSpearman()
                 continue
             elif stat_measure == "Pearson":
-                runningSum.append(self.calcPearson())
+                runningSum.append(self.calcPearson(twoSamples))
                 #runningSum += self.calcPearson()
                 continue
 
         #avg =  runningSum/sampling_rounds
         avg = np.average(runningSum)
 
-        return avg
+        return avg, runningSum
 
     def calcKLDistance(self, twoSamples):
         '''
@@ -125,8 +115,8 @@ class PacketAnalyzer(object):
         NB: 'pk' and 'qk' must have the same length
         :return:
         '''
-        print("Type Sample X(testSeq): ", (twoSamples["testSeq"]))
-        print("Type Sample Y(grndTruthSeq): ", (twoSamples["grndTruthSeq"]))
+        #print("Type Sample X(testSeq): ", (twoSamples["testSeq"]))
+        #print("Type Sample Y(grndTruthSeq): ", (twoSamples["grndTruthSeq"]))
         #kLdistResult = entropy(twoTestSamples.x, twoTestSamples.y)
         kLdistResult = entropy(twoSamples["testSeq"], twoSamples["grndTruthSeq"])
         return kLdistResult
@@ -139,19 +129,22 @@ class PacketAnalyzer(object):
         rho, pVal = spearmanr(twoSamples["testSeq"], twoSamples["grndTruthSeq"], axis=0)
         return spearmanr(twoSamples["testSeq"], twoSamples["grndTruthSeq"], axis=0)
 
-    def calcPearson(self):
+    def calcPearson(self, twoSamples):
         '''
         Calculate
         :return:
         '''
+        corrcoeff = pearsonr(twoSamples['testSeq'], twoSamples['grndTruthSeq'])
+        return corrcoeff
 
-    def doPlot(self, plotTitle, xlbl, ylbl):
+
+    def doScatterPlot(self, yVariable, markercolor, plotTitle, xlbl, ylbl):
         '''
         Plot the points given from the given sequence
         '''
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
         self.ax = self.fig.add_subplot(1,1,1)
-        self.ax.plot(self.pktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="None", color="blue")
+        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
         #plt.scatter(perPktCharEntropySeq)  # missing 'y' value ... but actually it's the x value that we need
         #self.fig.add_subplot()
         self.ax.set_title(plotTitle, size = 16)
@@ -162,12 +155,6 @@ class PacketAnalyzer(object):
         #self.ax.xlabel("Packet Sequence (Time)", size=11)
         #self.ax.ylabel("Byte (Char) Entropy per packet", size=11)
         self.fig.show()
-        self.fig.savefig()
-        self.fig.waitforbuttonpress()
+        #self.fig.savefig()
+        self.fig.waitforbuttonpress(timeout = -1)
         #time.sleep(10)
-
-
-
-
-
-
