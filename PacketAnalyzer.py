@@ -5,6 +5,7 @@ from scipy.stats import entropy, spearmanr, pearsonr
 from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
 
 import matplotlib.pyplot as plt
+import numpy as np
 import math
 import random
 import sklearn
@@ -94,21 +95,27 @@ class PacketCapture(object):
         :return:
         '''
         #runningAvg = 0
-        runningSum = 0
+        #runningSum = 0
+        runningSum = []
+        runningSum.clear()
 
         for i in range(sample_rounds):
             # Check which statistical measure we are calculating
             if stat_measure == "KL-Divergence":
-                runningSum += self.calcKLDistance(twoSamples)
+                runningSum.append(self.calcKLDistance(twoSamples))
+                #runningSum += self.calcKLDistance(twoSamples)
                 continue
             elif stat_measure == "SpearmanR":
-                runningSum += self.calcSpearman()
+                runningSum.append(self.calcSpearman())
+                #runningSum += self.calcSpearman()
                 continue
             elif stat_measure == "Pearson":
-                runningSum += self.calcPearson()
+                runningSum.append(self.calcPearson())
+                #runningSum += self.calcPearson()
                 continue
 
-        avg =  runningSum/sample_rounds
+        #avg =  runningSum/sample_rounds
+        avg = np.average(runningSum)
 
         return avg
 
@@ -138,8 +145,6 @@ class PacketCapture(object):
         Calculate
         :return:
         '''
-
-
 
     def doPlot(self, plotTitle, xlbl, ylbl):
         '''
