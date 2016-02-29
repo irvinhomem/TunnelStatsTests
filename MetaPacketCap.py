@@ -42,6 +42,24 @@ class MetaPacketCap(object):
         :return:
         '''
 
+    def get_ip_pkt_http_req_entropy(self):
+        '''
+
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap if TCP in pkt and pkt[TCP].dport==80]
+        return self.pktCharEntropySeq
+
+    def get_ip_pkt_dns_req_entropy(self):
+        '''
+
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
+                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
+        return self.pktCharEntropySeq
+
     def getIpPacketEntropy(self):
         '''
 
@@ -59,7 +77,6 @@ class MetaPacketCap(object):
         self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
                                   for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
         return self.pktCharEntropySeq
-
 
     def getHttpReqEntropy(self):
         '''

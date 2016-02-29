@@ -84,12 +84,22 @@ pktAnlyzr = PacketAnalyzer()
 # print("Pearson Correlation Coefficient: ", pearsonCoeff)
 #=========
 
-# Just for getting the variables initialized for plotting (HTTP and HTTP-over-DNS)
-httpMcap.getHttpReqEntropy()
-httpOvrDnsMetaCap.getDnsPktEntropy()
+# # Just for getting the variables initialized for plotting (HTTP and HTTP-over-DNS)
+# httpMcap.getHttpReqEntropy()
+# httpOvrDnsMetaCap.getDnsPktEntropy()
+#
+# httpMcap.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+# #httpOvrDnsMetaCap.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
-httpMcap.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
-#httpOvrDnsMetaCap.doPlot("HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+# pktAnlyzr.doOverlayPlot(httpMcap.getHttpReqEntropy(), httpOvrDnsMetaCap.getDnsPktEntropy(),
+#                         'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
+
+pktAnlyzr.doOverlayPlot(httpMcap.get_ip_pkt_http_req_entropy(), httpOvrDnsMetaCap.get_ip_pkt_dns_req_entropy(),
+                        'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
+
+#####################
+##      FTP     #####
+#####################
 
 # # Just for getting the variables initialized for plotting (FTP and FTP-over-DNS)
 # ftpMcap.getHttpReqEntropy()

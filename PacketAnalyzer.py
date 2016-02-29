@@ -156,5 +156,21 @@ class PacketAnalyzer(object):
         #self.ax.ylabel("Byte (Char) Entropy per packet", size=11)
         self.fig.show()
         #self.fig.savefig()
-        self.fig.waitforbuttonpress(timeout = -1)
+        self.fig.waitforbuttonpress(timeout=-1)
         #time.sleep(10)
+
+    def doOverlayPlot(self, varSet1, varSet2, markerclr1, markerclr2, plotTitle, xlbl, ylbl):
+        myfig = plt.figure()
+        #myaxes =  plt.axes()
+
+        myaxes = myfig.add_subplot(1,1,1)
+        myaxes.plot(varSet1, marker="+", markeredgecolor=markerclr1, linestyle="None", color="blue")
+        myaxes.plot(varSet2, marker="+", markeredgecolor=markerclr2, linestyle="None", color="blue")
+
+        myaxes.set_title(plotTitle, size = 16)
+        myaxes.set_xlabel(xlbl, size=11)
+        myaxes.set_ylabel(ylbl, size=11)
+
+        myfig.show()
+        myfig.waitforbuttonpress(timeout=-1)
+
