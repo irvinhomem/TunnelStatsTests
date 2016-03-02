@@ -67,14 +67,16 @@ pearson_avg_score = calcAvgStatScores("Pearson")
 klDiv_res = simple_predictor(kl_div_avg_score, "KL-Divergence")
 spearmanr_res = simple_predictor(spearmanr_avg_score, "SpearmanR")
 pearson_res = simple_predictor(pearson_avg_score, "Pearson")
+bhattacharya_res = ''
+mahalanobis_res = ''
 
 table_data = [
-    ['Protocol','KL-Div','SpearmanR', 'Pearson'],
-    ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0])],
-    ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1])],
-    ['Difference: ', str(kl_div_avg_score[0] - kl_div_avg_score[1]),
-     str(spearmanr_avg_score[0]- spearmanr_avg_score[1]), str(pearson_avg_score[0] - pearson_avg_score[1])],
-    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res]
+    ['Protocol/Stat','KL-Div','SpearmanR', 'Pearson', 'Bhattacharya', 'Mahalanobis'],
+    ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0]), str(''), str('')],
+    ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1]), str(''), str('')],
+    ['Difference: ', str(kl_div_avg_score[0] - kl_div_avg_score[1]), str(spearmanr_avg_score[0]- spearmanr_avg_score[1]),
+     str(pearson_avg_score[0] - pearson_avg_score[1]), str(''), str('')],
+    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, bhattacharya_res, mahalanobis_res]
 ]
 myTable = AsciiTable(table_data)
 myTable.inner_footing_row_border = True
