@@ -17,24 +17,24 @@ print("Pcaps Loaded and Initialized ... ")
 pktDgstr = PacketDigester()
 pktAnlyzr = PacketAnalyzer()
 
-# # Calculate KL-Divergence over 20 Samples: HTTP vs HTTP-over-DNS
+# # Calculate KL-Divergence over 20 Samples: FTP vs FTP-over-DNS
 # avgKLd20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
 #     "KL-Divergence",
 #     pktDgstr.getPopulationLists(
-#         httpOvrDnsMetaCap.getDnsPktEntropy(),
-#         httpMcap.getHttpReqEntropy()),
+#         ftpOvrDnsMetaCap.getDnsPktEntropy(),
+#         ftpMcap.getFtpReqEntropy()),          # ftpMcap.get_ip_pkt_ftp_req_entropy()
 #     20)
 #
 # print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
-#        "HTTP and HTTP-over-DNS", avgKLd20Samples)
+#        "FTP and FTP-over-DNS", avgKLd20Samples)
 # pktAnlyzr.doScatterPlot(KLDivVals,'red', 'KL-Divergence', 'Sample Round', 'KL-Distance')
 #========
 
-# # Calculate Single Sample KL Divergence: HTTP vs HTTP-over-DNS
+# Calculate Single Sample KL Divergence: HTTP vs HTTP-over-DNS
 # compKLDresult = pktAnlyzr.calcKLDistance(
 #     pktAnlyzr.getTwoEquiLenSamples(
-#         httpOvrDnsMetaCap.getDnsPktEntropy(),
-#         httpMcap.getHttpReqEntropy()))
+#         ftpOvrDnsMetaCap.getDnsPktEntropy(),
+#         ftpMcap.getFtpReqEntropy()))
 #
 # print("Kullback-Leibler Distance of a Single Sample: ", compKLDresult)
 #========
@@ -60,6 +60,9 @@ pktAnlyzr = PacketAnalyzer()
 # print("Spearman Correlation Coefficient: ", spearmanCoeff)
 #=========
 
+#-------------------------#
+####   Pearson     ########
+#-------------------------#
 # # Calculate Pearson Correlation Co-efficient over 20 Samples
 # pearson20avg, pearsonVals = pktAnlyzr.calcStatMeasureAvg(
 #     "Pearson",
@@ -89,7 +92,6 @@ pktAnlyzr = PacketAnalyzer()
 # ftpMcap.getFtpPktEntropy()
 ftpMcap.get_ip_pkt_ftp_req_entropy()
 ftpOvrDnsMetaCap.getDnsPktEntropy()
-
 
 #ftpMcap.doPlot(ftpMcap.getftpReqLen(),"FTP Request Length", "Packet Sequence (Time)", "Packet Lengths")
 ftpMcap.doPlot(ftpMcap.get_ip_pkt_len_ftp_req(), 'red',

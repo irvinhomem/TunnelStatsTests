@@ -38,7 +38,7 @@ class PacketAnalyzer(object):
         newSeqLen = (int(math.ceil(0.95 * len(fullTestSeq)))
                      if len(fullTestSeq) < len(fullGrndTruthSeq)
                      else int(math.ceil(0.95 * len(fullGrndTruthSeq))))
-        print("New Equalized Sequence Length: ", newSeqLen)
+        # print("New Equalized Sequence Length: ", newSeqLen)
         return newSeqLen
 
     def getTwoEquiLenSamples(self, fullTestSeq, fullGrndTruthSeq):
@@ -52,8 +52,8 @@ class PacketAnalyzer(object):
         testSeqStart = random.randint(1, len(fullTestSeq) - newSeqLen)
         grndTruthSeqStart = random.randint(1, len(fullGrndTruthSeq) - newSeqLen)
 
-        print("Sample Test Seq Starting Point: ", testSeqStart)
-        print("Ground Truth Seq Starting Point: ", grndTruthSeqStart)
+        # print("Sample Test Seq Starting Point: ", testSeqStart)
+        # print("Ground Truth Seq Starting Point: ", grndTruthSeqStart)
 
         #self.twoTestSamples(
         #    x=testSeq[testSeqStart:testSeqStart+newSeqLen],
@@ -79,7 +79,7 @@ class PacketAnalyzer(object):
         (given by 'sample_rounds') and get the average
         :return:
         '''
-        print("In calcStatMeasureAvg :: 'testPopulations length': ", len(testPopulationSeqs['testSeq']))
+        # print("In calcStatMeasureAvg :: 'testPopulations length': ", len(testPopulationSeqs['testSeq']))
 
         #runningAvg = 0
         #runningSum = 0
@@ -89,7 +89,7 @@ class PacketAnalyzer(object):
         for i in range(sampling_rounds):
             twoSamples = self.getTwoEquiLenSamples(testPopulationSeqs['testSeq'], testPopulationSeqs['grndTruthSeq'])
             # Check which statistical measure we are calculating
-            print("Round: ", i)
+            # print("Round: ", i)
             if stat_measure == "KL-Divergence":
                 runningSum.append(self.calcKLDistance(twoSamples))
                 #runningSum += self.calcKLDistance(twoSamples)
@@ -113,12 +113,13 @@ class PacketAnalyzer(object):
         Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
         where: entropy(pk, qk, base)
         NB: 'pk' and 'qk' must have the same length
+        'pk' is the known distribution; 'qk' is the unknown / model distribution
         :return:
         '''
         #print("Type Sample X(testSeq): ", (twoSamples["testSeq"]))
         #print("Type Sample Y(grndTruthSeq): ", (twoSamples["grndTruthSeq"]))
         #kLdistResult = entropy(twoTestSamples.x, twoTestSamples.y)
-        kLdistResult = entropy(twoSamples["testSeq"], twoSamples["grndTruthSeq"])
+        kLdistResult = entropy(twoSamples["grndTruthSeq"], twoSamples["testSeq"])
         return kLdistResult
 
     def calcSpearman(self, twoSamples):

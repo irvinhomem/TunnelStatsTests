@@ -12,25 +12,22 @@ from PacketDigester import PacketDigester
 httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap")
 httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
 
-ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap")
-ftpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap")
-
 print("Pcaps Loaded and Initialized ... ")
 
 pktDgstr = PacketDigester()
 pktAnlyzr = PacketAnalyzer()
 
-# # Calculate KL-Divergence over 20 Samples: HTTP vs HTTP-over-DNS
-# avgKLd20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
-#     "KL-Divergence",
-#     pktDgstr.getPopulationLists(
-#         httpOvrDnsMetaCap.getDnsPktEntropy(),
-#         httpMcap.getHttpReqEntropy()),
-#     20)
-#
-# print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
-#        "HTTP and HTTP-over-DNS", avgKLd20Samples)
-# pktAnlyzr.doScatterPlot(KLDivVals,'red', 'KL-Divergence', 'Sample Round', 'KL-Distance')
+# Calculate KL-Divergence over 20 Samples: HTTP vs HTTP-over-DNS
+avgKLd20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
+    "KL-Divergence",
+    pktDgstr.getPopulationLists(
+        httpOvrDnsMetaCap.getDnsPktEntropy(),
+        httpMcap.getHttpReqEntropy()),    # httpMcap.get_ip_pkt_http_req_entropy()    # getHttpReqEntropy
+    20)
+
+print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
+       "HTTP and HTTP-over-DNS", avgKLd20Samples)
+pktAnlyzr.doScatterPlot(KLDivVals,'red', 'KL-Divergence', 'Sample Round', 'KL-Distance')
 #========
 
 # # Calculate Single Sample KL Divergence: HTTP vs HTTP-over-DNS
@@ -69,7 +66,7 @@ pktAnlyzr = PacketAnalyzer()
 #     pktDgstr.getPopulationLists(
 #         httpOvrDnsMetaCap.getDnsPktEntropy(),
 #         httpMcap.getHttpReqEntropy()),
-#     1000)
+#     20)
 #
 # print("Pearson Corr Coeff Average of 20 Sampling Rounds: \n"
 #       "HTTP and HTTP-over-DNS", pearson20avg)
@@ -88,9 +85,9 @@ pktAnlyzr = PacketAnalyzer()
 # httpMcap.getHttpReqEntropy()
 # httpOvrDnsMetaCap.getDnsPktEntropy()
 #
-# httpMcap.doPlot(httpMcap.getHttpReqEntropy(),"HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+# httpMcap.doPlot(httpMcap.getHttpReqEntropy(), 'red', "HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 # httpOvrDnsMetaCap.doPlot(httpOvrDnsMetaCap.getDnsPktEntropy(),
-#                         "DNS Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+#                        "DNS Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
 # pktAnlyzr.doOverlayPlot(httpMcap.getHttpReqEntropy(), httpOvrDnsMetaCap.getDnsPktEntropy(),
 #                         'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')

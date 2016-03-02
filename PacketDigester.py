@@ -33,12 +33,13 @@ class PacketDigester(object):
         :return:
         '''
 
-    def getPopulationLists(self,testMetaPcapSeq, grndTruthMpcapSeq):
+    def getPopulationLists(self,testName, testMetaPcapSeq, grndTruthMpcapSeq):
         self.populationSeqs['testSeq'] = testMetaPcapSeq
         self.populationSeqs['grndTruthSeq'] = grndTruthMpcapSeq
 
-        print("Test Population Seq Length: ", len(testMetaPcapSeq))
-        print("Ground Truth Population Seq Length: ", len(grndTruthMpcapSeq))
+        print("Test against: ", testName)
+        print("\t Ground Truth Population Seq Length: ", len(grndTruthMpcapSeq))
+        print("\t Test Population Seq Length: ", len(testMetaPcapSeq))
 
         return self.populationSeqs
 
