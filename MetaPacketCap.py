@@ -36,47 +36,21 @@ class MetaPacketCap(object):
             h += prob * math.log((1/prob),2)
         return h
 
-    def getFtpPktEntropy(self):
-        '''
-        Get the Entropy of
-        :return:
-        '''
-
+#------------------------------------#
+######   HTTP Related Methods   ######
+#------------------------------------#
     def get_ip_pkt_http_req_entropy(self):
         '''
-
         :return:
         '''
         self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
                                   for pkt in self.cap if TCP in pkt and pkt[TCP].dport==80]
         return self.pktCharEntropySeq
 
-    def get_ip_pkt_dns_req_entropy(self):
-        '''
-
-        :return:
-        '''
-        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
-                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
-        return self.pktCharEntropySeq
-
-    def getIpPacketEntropy(self):
-        '''
-
-        :return:
-        '''
-        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
-                                  for pkt in self.cap if IP in pkt]
-        return self.pktCharEntropySeq
-
-    def getDnsPktEntropy(self):
-        '''
-
-        :return:
-        '''
-        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
-                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
-        return self.pktCharEntropySeq
+    def get_ip_pkt_len_http_req(self):
+        self.specificPktLens = [len(pkt[IP])
+                           for pkt in self.cap if TCP in pkt and pkt[TCP].dport==80]
+        return self.specificPktLens
 
     def getHttpReqEntropy(self):
         '''
@@ -88,19 +62,107 @@ class MetaPacketCap(object):
                                   for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
         return self.pktCharEntropySeq
 
-
     def getHttpReqLen(self):
         self.specificPktLens = [len(pkt[IP][TCP][Raw].load)
                            for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
         return self.specificPktLens
 
-    def doPlot(self, plotTitle, xlbl, ylbl):
+#-----------------------------------#
+###### DNS Related Methods ##########
+#-----------------------------------#
+    def get_ip_pkt_dns_req_entropy(self):
+        '''
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
+        return self.pktCharEntropySeq
+
+    def getDnsPktEntropy(self):
+        '''
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][UDP][DNS])))
+                                  for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
+        return self.pktCharEntropySeq
+
+    def getDnsReqLens(self):
+        self.specificPktLens = [len(pkt[IP][UDP][DNS])
+                           for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
+        return self.specificPktLens
+
+#---------------------------------#
+######  IP Packet Methods    ######
+#---------------------------------#
+    def getIpPacketEntropy(self):
+        '''
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap if IP in pkt]
+        return self.pktCharEntropySeq
+
+#---------------------------------#
+###### FTP related Methods   ######
+#---------------------------------#
+    def getftpReqLen(self):
+        self.specificPktLens = [len(pkt[IP][TCP][Raw].load)
+                           for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==21]
+        return self.specificPktLens
+
+    def get_ip_pkt_len_ftp_req(self):
+        self.specificPktLens = [len(pkt[IP])
+                           for pkt in self.cap if TCP in pkt and pkt[TCP].dport==21]
+        return self.specificPktLens
+
+    def getFtpReqEntropy(self):
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][TCP][Raw].load)))
+                                  for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==21]
+        return self.pktCharEntropySeq
+
+    def getFtpCommandChannelEntropy(self):
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][TCP][Raw].load)))
+                                  for pkt in self.cap if TCP in pkt and Raw in pkt
+                                  and (pkt[TCP].dport==21 or pkt[TCP].sport==21)]
+        return self.pktCharEntropySeq
+
+    def getFtpCommandChannelLens(self):
+        self.pktCharEntropySeq = [len(pkt[IP][TCP][Raw].load)
+                                  for pkt in self.cap if TCP in pkt and Raw in pkt
+                                  and (pkt[TCP].dport==21 or pkt[TCP].sport==21)]
+        return self.pktCharEntropySeq
+
+    def get_ftp_cmd_channel_pkt_entropy(self):
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap
+                                  if TCP in pkt and (pkt[TCP].dport==21 or pkt[TCP].sport==21)]
+        return self.pktCharEntropySeq
+
+    def get_ip_pkt_ftp_req_entropy(self):
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                                  for pkt in self.cap if TCP in pkt and pkt[TCP].dport==21]
+        return self.pktCharEntropySeq
+
+    def get_ftp_client_ip_pkt_lens(self, clientIpAddr):
+        self.specificPktLens = [len(pkt[IP])
+                           for pkt in self.cap if TCP in pkt and pkt[IP].src==clientIpAddr]
+        return self.specificPktLens
+
+    def get_ftp_client_ip_pkt_entropy(self, clientIpAddr):
+        self.specificPktLens = [self.calcEntropy(Counter(bytes(pkt[IP])))
+                           for pkt in self.cap if TCP in pkt and pkt[IP].src==clientIpAddr]
+        return self.specificPktLens
+
+#--------------------------------------#
+######   Plotting Related methods   ####
+#--------------------------------------#
+    def doPlot(self, yVariable, markercolor, plotTitle, xlbl, ylbl):
         '''
         Plot the points given from the given sequence
         '''
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
         self.ax = self.fig.add_subplot(1,1,1)
-        self.ax.plot(self.pktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="None", color="blue")
+        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
         #plt.scatter(perPktCharEntropySeq)  # missing 'y' value ... but actually it's the x value that we need
         #self.fig.add_subplot()
         self.ax.set_title(plotTitle, size = 16)

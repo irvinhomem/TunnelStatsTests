@@ -20,17 +20,17 @@ print("Pcaps Loaded and Initialized ... ")
 pktDgstr = PacketDigester()
 pktAnlyzr = PacketAnalyzer()
 
-# # Calculate KL-Divergence over 20 Samples: HTTP vs HTTP-over-DNS
-# avgKLd20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
-#     "KL-Divergence",
-#     pktDgstr.getPopulationLists(
-#         httpOvrDnsMetaCap.getDnsPktEntropy(),
-#         httpMcap.getHttpReqEntropy()),
-#     20)
-#
-# print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
-#        "HTTP and HTTP-over-DNS", avgKLd20Samples)
-# pktAnlyzr.doScatterPlot(KLDivVals,'red', 'KL-Divergence', 'Sample Round', 'KL-Distance')
+# Calculate KL-Divergence over 20 Samples: HTTP vs HTTP-over-DNS
+avgKLd20Samples, KLDivVals = pktAnlyzr.calcStatMeasureAvg(
+    "KL-Divergence",
+    pktDgstr.getPopulationLists(
+        httpOvrDnsMetaCap.getDnsPktEntropy(),
+        httpMcap.getHttpReqEntropy()),
+    20)
+
+print("Kullback-Leibler Distance Average of 20 Sampling Rounds: \n"
+       "HTTP and HTTP-over-DNS", avgKLd20Samples)
+pktAnlyzr.doScatterPlot(KLDivVals,'red', 'KL-Divergence', 'Sample Round', 'KL-Distance')
 #========
 
 # # Calculate Single Sample KL Divergence: HTTP vs HTTP-over-DNS
@@ -94,8 +94,9 @@ pktAnlyzr = PacketAnalyzer()
 # pktAnlyzr.doOverlayPlot(httpMcap.getHttpReqEntropy(), httpOvrDnsMetaCap.getDnsPktEntropy(),
 #                         'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
 
-pktAnlyzr.doOverlayPlot(httpMcap.get_ip_pkt_http_req_entropy(), httpOvrDnsMetaCap.get_ip_pkt_dns_req_entropy(),
-                        'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
+# Overlay Plots of HTTP vs HTTP-over-DNS
+# pktAnlyzr.doOverlayPlot(httpMcap.get_ip_pkt_http_req_entropy(), httpOvrDnsMetaCap.get_ip_pkt_dns_req_entropy(),
+#                         'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
 
 #####################
 ##      FTP     #####
