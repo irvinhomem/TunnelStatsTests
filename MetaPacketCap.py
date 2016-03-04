@@ -161,8 +161,9 @@ class MetaPacketCap(object):
         Plot the points given from the given sequence
         '''
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
+        #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
         self.ax = self.fig.add_subplot(1,1,1)
-        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="solid", color="blue")
         #plt.scatter(perPktCharEntropySeq)  # missing 'y' value ... but actually it's the x value that we need
         #self.fig.add_subplot()
         self.ax.set_title(plotTitle, size = 16)

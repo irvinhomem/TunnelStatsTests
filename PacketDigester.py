@@ -33,7 +33,7 @@ class PacketDigester(object):
         :return:
         '''
 
-    def getPopulationLists(self,testName, testMetaPcapSeq, grndTruthMpcapSeq):
+    def getPopulationLists(self, testName, testMetaPcapSeq, grndTruthMpcapSeq):
         self.populationSeqs['testSeq'] = testMetaPcapSeq
         self.populationSeqs['grndTruthSeq'] = grndTruthMpcapSeq
 

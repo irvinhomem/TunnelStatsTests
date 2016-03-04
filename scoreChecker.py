@@ -35,7 +35,7 @@ def calcAvgStatScores(stat_measure_name):
         stat_measure_name,
         pktDgstr.getPopulationLists("FTP",
             x_over_DnsTun.getDnsPktEntropy(),
-            ftpMcap.getFtpReqEntropy()),          # ftpMcap.get_ip_pkt_ftp_req_entropy()
+            ftpMcap.getFtpReqEntropy()),      # ftpMcap.get_ip_pkt_ftp_req_entropy()      # getFtpReqEntropy
         1000)
     return avg_score_to_HTTP, avg_score_to_FTP
 
@@ -57,12 +57,29 @@ def simple_predictor(score_result, stat_measure):
             return 'HTTP'
         else:
             return 'FTP'
+    elif stat_measure == "Bhatta":
+        if abs(score_result[0]) < abs(score_result[1]):
+            return 'HTTP'
+        else:
+            return 'FTP'
+    elif stat_measure == "Hellinger":
+        if abs(score_result[0]) < abs(score_result[1]):
+            return 'HTTP'
+        else:
+            return 'FTP'
+    elif stat_measure == "Mahalanobis":
+        if abs(score_result[0]) < abs(score_result[1]):
+            return 'HTTP'
+        else:
+            return 'FTP'
     else:
         print("Undefined Stat Measure: ", stat_measure)
 
 kl_div_avg_score = calcAvgStatScores("KL-Divergence")
 spearmanr_avg_score = calcAvgStatScores("SpearmanR")
 pearson_avg_score = calcAvgStatScores("Pearson")
+bhattacharya_avg_score = ''
+mahalanobis_avg_score = ''
 
 klDiv_res = simple_predictor(kl_div_avg_score, "KL-Divergence")
 spearmanr_res = simple_predictor(spearmanr_avg_score, "SpearmanR")
