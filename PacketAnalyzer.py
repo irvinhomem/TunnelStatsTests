@@ -3,9 +3,10 @@
 
 from scipy.stats import kstest
 from scipy.stats import entropy, spearmanr, pearsonr
-# from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
+from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
 
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import numpy as np
 import math
 import random
@@ -113,13 +114,14 @@ class PacketAnalyzer(object):
         Coincidentally the Kulback-Leibler Divergence (KL-distance) Test is actually somehow similar to Entropy
         where: entropy(pk, qk, base)
         NB: 'pk' and 'qk' must have the same length
-        'pk' is the known distribution; 'qk' is the unknown / model distribution
+        KlDiv of (pk||qk) is the amount of difference to approximate 'pk' on the model of 'qk'
+        Scratch this --->'pk' is the known distribution; 'qk' is the unknown / model distribution
         :return:
         '''
         #print("Type Sample X(testSeq): ", (twoSamples["testSeq"]))
         #print("Type Sample Y(grndTruthSeq): ", (twoSamples["grndTruthSeq"]))
         #kLdistResult = entropy(twoTestSamples.x, twoTestSamples.y)
-        kLdistResult = entropy(twoSamples["grndTruthSeq"], twoSamples["testSeq"])
+        kLdistResult = entropy(twoSamples["testSeq"],twoSamples["grndTruthSeq"])
         return kLdistResult
 
     def calcSpearman(self, twoSamples):
@@ -138,6 +140,11 @@ class PacketAnalyzer(object):
         corrcoeff = pearsonr(twoSamples['testSeq'], twoSamples['grndTruthSeq'])
         return corrcoeff
 
+    def calcMahalanobis(self, twoSamples):
+        inv_vector =[]
+        mahalaDist = mahalanobis(twoSamples["testSeq"], twoSamples["grndTruthSeq"], inv_vector)
+        #Missing the 3rd variable, so don't use this function yet
+        return mahalaDist
 
     def doScatterPlot(self, yVariable, markercolor, plotTitle, xlbl, ylbl):
         '''
@@ -153,6 +160,9 @@ class PacketAnalyzer(object):
         #self.fig.add_axes(xlabel=xlbl, ylabel=ylbl)
         self.ax.set_xlabel(xlbl, size=11)
         self.ax.set_ylabel(ylbl, size=11)
+
+        yVar_legend = ''
+        self.ax.legend(handles=[yVar_legend], labels=[''])
         #self.ax.xlabel("Packet Sequence (Time)", size=11)
         #self.ax.ylabel("Byte (Char) Entropy per packet", size=11)
         self.fig.show()
@@ -165,12 +175,19 @@ class PacketAnalyzer(object):
         #myaxes =  plt.axes()
 
         myaxes = myfig.add_subplot(1,1,1)
-        myaxes.plot(varSet1, marker="+", markeredgecolor=markerclr1, linestyle="None", color="blue")
-        myaxes.plot(varSet2, marker="+", markeredgecolor=markerclr2, linestyle="None", color="blue")
+        myaxes.plot(varSet1, marker="+", markeredgecolor=markerclr1, linestyle="None", color="blue", label="test1")
+        myaxes.plot(varSet2, marker="+", markeredgecolor=markerclr2, linestyle="None", color="blue", label="test2")
 
         myaxes.set_title(plotTitle, size = 16)
         myaxes.set_xlabel(xlbl, size=11)
         myaxes.set_ylabel(ylbl, size=11)
+
+        blue_markers = mlines.Line2D([], [], color='red', linestyle='None', marker='+', markersize=7, label='Red stars')
+        red_markers = mlines.Line2D([], [], color='blue', linestyle='None', marker='+', markersize=7, label='Blue stars')
+        #myfig.legend(handles=[set1_leg,set2_leg], labels=['Label1', 'Label2'])
+        markers = [blue_markers, red_markers]
+        my_labels = [line.get_label() for line in markers]
+        myfig.legend(handles=markers, labels=my_labels, loc='upper right')
 
         myfig.show()
         myfig.waitforbuttonpress(timeout=-1)
