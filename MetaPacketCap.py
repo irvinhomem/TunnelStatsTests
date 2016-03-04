@@ -7,9 +7,10 @@ import math
 
 class MetaPacketCap(object):
 
-    def __init__(self, file_path):
+    def __init__(self, file_path, protoLabel):
         self.pcapFilePath = file_path
         self.cap = rdpcap(self.pcapFilePath)
+        self.protocolLabel = protoLabel
 
         self.pktCharFreqDict = {}
         self.pktCharEntropySeq = []
@@ -21,6 +22,9 @@ class MetaPacketCap(object):
 
         print("Finished initializing and reading pcap file ...")
         print("Type : ", type(self.cap))
+
+    def add_proto_label(self, newProtoLabel):
+        self.protocolLabel = newProtoLabel
 
     def calcEntropy(self, myFreqDict):
         '''

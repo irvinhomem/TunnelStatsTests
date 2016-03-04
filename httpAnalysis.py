@@ -94,5 +94,5 @@ pktAnlyzr = PacketAnalyzer()
 #                         'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
 
 # Overlay Plots of HTTP vs HTTP-over-DNS
-pktAnlyzr.doOverlayPlot(httpMcap.get_ip_pkt_http_req_entropy(), httpOvrDnsMetaCap.get_ip_pkt_dns_req_entropy(),
-                        'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')
+# pktAnlyzr.doOverlayPlot(httpMcap.get_ip_pkt_http_req_entropy(), httpOvrDnsMetaCap.get_ip_pkt_dns_req_entropy(),
+#                        'red', 'blue', 'HTTP vs HTTP-over-DNS', 'Entropy', 'Packets')

@@ -56,23 +56,22 @@ class PacketAnalyzer(object):
         # print("Sample Test Seq Starting Point: ", testSeqStart)
         # print("Ground Truth Seq Starting Point: ", grndTruthSeqStart)
 
-        #self.twoTestSamples(
-        #    x=testSeq[testSeqStart:testSeqStart+newSeqLen],
-        #    y= grndTruthSeq[grndTruthSeqStart:grndTruthSeqStart+newSeqLen])
         newTestSeqList = fullTestSeq[testSeqStart:testSeqStart + newSeqLen]
         newgrndTruthSeqList = fullGrndTruthSeq[grndTruthSeqStart:grndTruthSeqStart + newSeqLen]
 
-        # self.twoTestSamples.append(testSeq[testSeqStart:testSeqStart+newSeqLen])
-        # self.twoTestSamples.append(testSeq[testSeqStart:testSeqStart+newSeqLen])
         multiSampleSeq= dict(testSeq=[],grndTruthSeq=[])
         multiSampleSeq["testSeq"] = newTestSeqList
         multiSampleSeq["grndTruthSeq"] = newgrndTruthSeqList
 
         #print("Test X: ", self.twoTestSamples["testSeq"])
         #print("Test Y: ", self.twoTestSamples["grndTruthSeq"])
-        #0.00839789398451
 
         return multiSampleSeq
+
+    def choose_sampling_size(self):
+        # To be fixed
+        return
+
 
     def calcStatMeasureAvg(self, stat_measure, testPopulationSeqs, sampling_rounds):
         '''
