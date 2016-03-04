@@ -36,27 +36,38 @@ class MetaCapLibrary(object):
     def load_single_pcap(self):
         return
 
-    def load_pcaps(self):
+    # def load_pcaps(self):
+    #     return
+
+    def load_pcaps_from_files(self, protocol_base='unknown'):
         file_paths = filedialog.askopenfilenames(**self.file_opt)
 
-        for file_path in file_paths:
+        for capfile_path in file_paths:
             #print(file_path)
-            self.add_to_lib(MetaPacketCap(file_path,'http'))
+            self.add_to_lib(MetaPacketCap(capfile_path,protocol_base))
             print(len(self.get_packet_library()))
-            self.write_path_to_base('http', file_path)
+            self.write_path_to_base(protocol_base, capfile_path)
 
         return file_paths
 
-    def write_path_to_base(self, file_name, f_path):
-        p = pathlib.Path(self.capbase.base_loc + '/' + file_name)
+    def write_path_to_base(self, base_file_name, f_path):
+        if self.capbase.base_loc == '':
+            print("Base not yet set")
+        elif self.capbase.base_loc == 'unknown':
+            print("WARNING: Base is 'unknown' ")
+        p = pathlib.Path(self.capbase.base_loc + '/' + base_file_name)
         try:
-            with p.open('a+') as f:
+            with p.open('r') as rf:
                 #Check if entry exists
-                f.write(f_path+'\n')
-
+                if f_path in rf.read():
+                    print('Already existing PcapPath! : ' + f_path )
+                else:
+                    with p.open('a+') as f:
+                        f.write(f_path+'\n')
         except:
             print("File Path does not exist ... creating base protocol file")
-            file = open(self.capbase.base_loc + '/' + file_name, 'w+')
+            file = open(self.capbase.base_loc + '/' + base_file_name, 'a+')
+            file.write(f_path+'\n')
         return
 
     def get_packet_library(self):
@@ -65,6 +76,7 @@ class MetaCapLibrary(object):
     #def load_specific_from_base(self, protocolLabel):
 
     def load_specific_proto_from_base(self, protocolLabel):
+        #TODO: Load packet capture paths from specific protocol base
         return
 
     def load_all_from_base(self):
@@ -73,7 +85,7 @@ class MetaCapLibrary(object):
 
 
 httpCapLib = MetaCapLibrary()
-httpCapLib.load_pcaps()
+httpCapLib.load_pcaps_from_files(protocol_base='http')
 
 
 
