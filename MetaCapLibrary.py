@@ -4,7 +4,7 @@ from MetaPacketCap import MetaPacketCap
 from MetaCapBase import MetaCapBase
 
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 import os.path
 import pathlib
 
@@ -34,6 +34,7 @@ class MetaCapLibrary(object):
         self.packetLibrary.append(newMetaCap)
 
     def load_single_pcap(self):
+
         return
 
     # def load_pcaps(self):
@@ -41,6 +42,11 @@ class MetaCapLibrary(object):
 
     def load_pcaps_from_files(self, protocol_base='unknown'):
         file_paths = filedialog.askopenfilenames(**self.file_opt)
+
+        #If protocol base is not known, ASK!
+        if protocol_base == '' or 'unknown':
+            protocol_base = simpledialog.askstring(
+                "Base Protocol", "What is the possible base protocol?", initialvalue="unknown")
 
         for capfile_path in file_paths:
             #print(file_path)
@@ -65,7 +71,8 @@ class MetaCapLibrary(object):
                     with p.open('a+') as f:
                         f.write(f_path+'\n')
         except:
-            print("File Path does not exist ... creating base protocol file")
+            print("Base File Path does not exist ... creating base protocol store at: " +
+                  self.capbase.base_loc + '/' + base_file_name)
             file = open(self.capbase.base_loc + '/' + base_file_name, 'a+')
             file.write(f_path+'\n')
         return
@@ -76,10 +83,25 @@ class MetaCapLibrary(object):
     #def load_specific_from_base(self, protocolLabel):
 
     def load_specific_proto_from_base(self, protocolLabel):
-        #TODO: Load packet capture paths from specific protocol base
+        #Load packet capture paths from specific protocol base file/store
+        #Read protocol base file store and append entries into local packetLibrary list
+        p = pathlib.Path(self.capbase.base_loc + '/' + protocolLabel)
+        pathList = []
+        try:
+            with p.open('r') as rf:
+                pathList = rf.readlines()
+        except:
+            print("Base File Path does not exist ...")
+
+        if len(pathList) > 0:
+            for file_path in pathList:
+                self.packetLibrary.append(MetaPacketCap(file_path,protocolLabel))
+        else:
+            print("Base Protocol file is empty.")
+
         return
 
-    def load_all_from_base(self):
+    def load_all_from_bases(self):
         return
 
 
@@ -87,6 +109,3 @@ class MetaCapLibrary(object):
 httpCapLib = MetaCapLibrary()
 httpCapLib.load_pcaps_from_files(protocol_base='http')
 
-
-
-#print(filepath)
