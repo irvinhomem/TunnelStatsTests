@@ -33,6 +33,10 @@ class MetaCapLibrary(object):
     def add_to_lib(self, newMetaCap):
         self.packetLibrary.append(newMetaCap)
 
+    def add_to_base(self, newMetaCap):
+
+        return
+
     def load_single_pcap(self):
 
         return
@@ -44,7 +48,8 @@ class MetaCapLibrary(object):
         file_paths = filedialog.askopenfilenames(**self.file_opt)
 
         #If protocol base is not known, ASK!
-        if protocol_base == '' or 'unknown':
+        if protocol_base is None or protocol_base == '' or protocol_base == 'unknown':
+            print("Protocol Base is: ", protocol_base)
             protocol_base = simpledialog.askstring(
                 "Base Protocol", "What is the possible base protocol?", initialvalue="unknown")
 
@@ -82,7 +87,7 @@ class MetaCapLibrary(object):
 
     #def load_specific_from_base(self, protocolLabel):
 
-    def load_specific_proto_from_base(self, protocolLabel):
+    def load_specific_proto_from_base(self, protocolLabel, filterTerm):
         #Load packet capture paths from specific protocol base file/store
         #Read protocol base file store and append entries into local packetLibrary list
         p = pathlib.Path(self.capbase.base_loc + '/' + protocolLabel)
@@ -94,8 +99,9 @@ class MetaCapLibrary(object):
             print("Base File Path does not exist ...")
 
         if len(pathList) > 0:
-            for file_path in pathList:
-                self.packetLibrary.append(MetaPacketCap(file_path,protocolLabel))
+            for counter,file_path in enumerate(pathList):
+                self.packetLibrary.append(MetaPacketCap(str(file_path).rstrip(),protocolLabel))
+                print("CapLibEntry: ", counter)
         else:
             print("Base Protocol file is empty.")
 
@@ -104,8 +110,10 @@ class MetaCapLibrary(object):
     def load_all_from_bases(self):
         return
 
-
-
 httpCapLib = MetaCapLibrary()
-httpCapLib.load_pcaps_from_files(protocol_base='http')
+#httpCapLib.load_pcaps_from_files('http')
+
+httpCapLib.load_specific_proto_from_base('http')
+print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
+print("Length: ",  len(httpCapLib.get_packet_library()))
 

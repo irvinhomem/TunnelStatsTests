@@ -9,8 +9,8 @@ from PacketDigester import PacketDigester
 # 3. "do plot"
 
 # Collect Packet Captures to Analyze
-httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap")
-httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
+httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap", "http")
+httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap", "http")
 
 print("Pcaps Loaded and Initialized ... ")
 

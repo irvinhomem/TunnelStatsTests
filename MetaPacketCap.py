@@ -17,8 +17,10 @@ class MetaPacketCap(object):
         self.specificPktLens = []
 
         #self.fig, self.ax = plt.subplots()
-        self.fig = plt.figure()
-        self.ax = plt.axes()
+        #Originally plots were initialized here when the object was created
+        #For memory reasons figures/plots/axes are initialized now only just before plotting
+        self.fig = None #plt.figure()
+        self.ax = None #plt.axes()
 
         print("Finished initializing and reading pcap file ...")
         print("Type : ", type(self.cap))
@@ -164,6 +166,10 @@ class MetaPacketCap(object):
         '''
         Plot the points given from the given sequence
         '''
+
+        self.fig = plt.figure()
+        self.ax = plt.axes()
+
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
         #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
         self.ax = self.fig.add_subplot(1,1,1)
