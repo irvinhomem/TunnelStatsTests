@@ -127,19 +127,34 @@ class MetaCapLibrary(object):
     def load_all_from_bases(self):
         return
 
-    def doSuperPlot(self, yVariable, markercolor):
+    def doSuperPlot(self, plot_statistic, markercolor):
         #self.fig = plt.figure(figsize=(12, 9), dpi=100, facecolor='w', edgecolor='k')
         self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
-        self.ax = plt.axes()
-        self.gs = gridspec.GridSpec(2,4)
+        my_axes = []
+        yVariable =[]
+
+        for counter, cap in enumerate(self.packetLibrary):
+            if plot_statistic == "HttpReqEntropy":
+                yVariable.append(cap.getHttpReqEntropy())
+            elif plot_statistic == "ftpReqEntropy":
+                yVariable.append(cap.getHttpReqEntropy())
+            print("CapLibPlotEntry: ", counter+1)
+            x_coord = int(counter/4)
+            y_coord = int(counter-(x_coord*4))
+            my_axes[counter] = plt.subplot2grid((4,4),(x_coord,y_coord))
+            my_axes[counter].plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+
+        #self.ax = plt.axes()
+        #self.gs = gridspec.GridSpec(4,4)
 
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
-        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+        #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
         #self.ax = self.fig.add_subplot(1,1,1)
-        self.ax = plt.subplot(self.gs[1,2])
+        #self.ax = plt.subplot(self.gs[1,2])
         #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="solid", color="blue")
 
-        self.fig.add_subplot(self.ax)
+        # self.fig.add_subplot(self.ax)
+        self.fig.add_subplot(my_axes)
         self.fig.show()
         #self.fig.savefig()
         self.fig.waitforbuttonpress(timeout= -1)
@@ -163,5 +178,6 @@ httpCapLib.load_specific_proto_from_base('http','http')
 #httpMCap = httpCapLib.get_packet_library()[0]
 #httpMCap.doPlot(httpMCap.getHttpReqEntropy(), 'red', "HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
-httpCapLib.doSuperPlot(httpCapLib.get_packet_library()[0].getHttpReqEntropy(), "red")
+#httpCapLib.doSuperPlot(httpCapLib.get_packet_library()[0].getHttpReqEntropy(), "red")
+httpCapLib.doSuperPlot('HttpReqEntropy', "red")
 
