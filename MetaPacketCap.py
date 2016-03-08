@@ -9,7 +9,11 @@ class MetaPacketCap(object):
 
     def __init__(self, file_path, protoLabel):
         self.pcapFilePath = file_path
-        self.cap = rdpcap(self.pcapFilePath)
+        try:
+            self.cap = rdpcap(self.pcapFilePath)
+        except:
+            print("Pcap File MISSING at :", self.pcapFilePath)
+
         self.protocolLabel = protoLabel
 
         self.pktCharFreqDict = {}

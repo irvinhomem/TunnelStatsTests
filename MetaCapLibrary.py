@@ -3,6 +3,8 @@ from PacketDigester import PacketDigester
 from MetaPacketCap import MetaPacketCap
 from MetaCapBase import MetaCapBase
 
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import tkinter as tk
 from tkinter import filedialog, simpledialog
 import os.path
@@ -27,8 +29,11 @@ class MetaCapLibrary(object):
         #options['title'] = 'This is a title'
         options['multiple'] = 'True'
 
-        self.capbase = MetaCapBase(filedialog.askdirectory(initialdir=''))
-        print('capbase: ', self.capbase.base_loc)
+        self.capbase = MetaCapBase()
+        print('capbase directory: ', self.capbase.base_loc)
+        self.fig = None
+        self.ax = None
+        self.gs = None
 
     def add_to_lib(self, newMetaCap):
         self.packetLibrary.append(newMetaCap)
@@ -87,21 +92,33 @@ class MetaCapLibrary(object):
 
     #def load_specific_from_base(self, protocolLabel):
 
-    def load_specific_proto_from_base(self, protocolLabel, filterTerm):
+    def load_specific_proto_from_base(self, protocolLabel, filterContainsTerm=None):
         #Load packet capture paths from specific protocol base file/store
         #Read protocol base file store and append entries into local packetLibrary list
         p = pathlib.Path(self.capbase.base_loc + '/' + protocolLabel)
         pathList = []
+        skipped = 0
         try:
             with p.open('r') as rf:
-                pathList = rf.readlines()
+                if filterContainsTerm is None or filterContainsTerm == '':
+                    pathList = rf.readlines()
+                else:
+                    for line in rf:
+                        if str(filterContainsTerm).lower() in str(line).rsplit('/',1)[1].lower():
+                            pathList.append(line)
+                        else:
+                            #print("Filter term missing in base file: "+ filterContainsTerm)
+                            skipped +=1
+                #pathList = rf.readlines()
         except:
             print("Base File Path does not exist ...")
+
+        print("Skipped/Filtered out entries from base: ", skipped)
 
         if len(pathList) > 0:
             for counter,file_path in enumerate(pathList):
                 self.packetLibrary.append(MetaPacketCap(str(file_path).rstrip(),protocolLabel))
-                print("CapLibEntry: ", counter)
+                print("CapLibEntry: ", counter+1)
         else:
             print("Base Protocol file is empty.")
 
@@ -110,10 +127,41 @@ class MetaCapLibrary(object):
     def load_all_from_bases(self):
         return
 
-httpCapLib = MetaCapLibrary()
-#httpCapLib.load_pcaps_from_files('http')
+    def doSuperPlot(self, yVariable, markercolor):
+        #self.fig = plt.figure(figsize=(12, 9), dpi=100, facecolor='w', edgecolor='k')
+        self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
+        self.ax = plt.axes()
+        self.gs = gridspec.GridSpec(2,4)
 
-httpCapLib.load_specific_proto_from_base('http')
-print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
-print("Length: ",  len(httpCapLib.get_packet_library()))
+        #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
+        self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+        #self.ax = self.fig.add_subplot(1,1,1)
+        self.ax = plt.subplot(self.gs[1,2])
+        #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="solid", color="blue")
+
+        self.fig.add_subplot(self.ax)
+        self.fig.show()
+        #self.fig.savefig()
+        self.fig.waitforbuttonpress(timeout= -1)
+
+        return
+
+httpCapLib = MetaCapLibrary()
+ftpCapLib = MetaCapLibrary()
+
+#httpCapLib.load_pcaps_from_files('http')
+#ftpCapLib.load_pcaps_from_files('ftp')
+
+#httpCapLib.load_specific_proto_from_base('http')
+httpCapLib.load_specific_proto_from_base('http','http')
+#print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
+#print("Length: ",  len(httpCapLib.get_packet_library()))
+
+# ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
+# print("Length: ",  len(ftpCapLib.get_packet_library()))
+
+#httpMCap = httpCapLib.get_packet_library()[0]
+#httpMCap.doPlot(httpMCap.getHttpReqEntropy(), 'red', "HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+
+httpCapLib.doSuperPlot(httpCapLib.get_packet_library()[0].getHttpReqEntropy(), "red")
 
