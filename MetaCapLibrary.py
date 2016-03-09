@@ -95,6 +95,9 @@ class MetaCapLibrary(object):
 
     def load_specific_proto_from_base(self, protocolLabel, filterContainsTerm=None):
         #Load packet capture paths from specific protocol base file/store
+        # ('protocolLabel' is label of the base store file to check)
+        # ('filterContainsTerm' checks the filenames of the pcap files for the given term,
+        # so name your pcap files appropriately with indicative terms of what you expect in them)
         #Read protocol base file store and append entries into local packetLibrary list
         p = pathlib.Path(self.capbase.base_loc + '/' + protocolLabel)
         pathList = []
@@ -208,8 +211,10 @@ class MetaCapLibrary(object):
         return
 
 #Create a CapLibrary object
-httpCapLib = MetaCapLibrary()
+#httpCapLib = MetaCapLibrary()
 #ftpCapLib = MetaCapLibrary()
+#httpOvDnsCapLib = MetaCapLibrary()
+ftpOvDnsCapLib = MetaCapLibrary()
 
 # Load a CapLibrary from the PCAP files
 #httpCapLib.load_pcaps_from_files('http')
@@ -217,18 +222,18 @@ httpCapLib = MetaCapLibrary()
 
 # Load a CapLibrary from the 'base' location and filter according to the given filter
 #httpCapLib.load_specific_proto_from_base('http')
-httpCapLib.load_specific_proto_from_base('http','http')
+#httpCapLib.load_specific_proto_from_base('http','http')
 #print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
-print("Length: ",  len(httpCapLib.get_packet_library()))
+#print("Length: ",  len(httpCapLib.get_packet_library()))
 
 #ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
 #print("Length: ",  len(ftpCapLib.get_packet_library()))
 
-#httpMCap = httpCapLib.get_packet_library()[0]
-#httpMCap.doPlot(httpMCap.getHttpReqEntropy(), 'red', "HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
+#httpOvDnsCapLib.load_specific_proto_from_base('http','dns')
+ftpOvDnsCapLib.load_specific_proto_from_base('ftp','dns')
 
 #httpCapLib.doSuperPlot('HttpReqEntropy', "red")
-httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
+#httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
 #httpCapLib.doSuperPlot('HttpReqLen', "red")
 
 #httpCapLib.doSuperPlot('IpPacketEntropy', "red")
@@ -238,4 +243,7 @@ httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
 #ftpCapLib.doSuperPlot('FtpReqLen', "red")
 
 #ftpCapLib.doSuperPlot('IpPacketEntropy', "red")
+
+#httpOvDnsCapLib.doSuperPlot('IpPktDnsReqEntropy', 'red')
+ftpOvDnsCapLib.doSuperPlot('IpPktDnsReqEntropy', 'red')
 
