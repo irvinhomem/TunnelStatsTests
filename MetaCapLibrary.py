@@ -141,9 +141,13 @@ class MetaCapLibrary(object):
             print("CapLibPlotEntry: ", counter+1)
             x_coord = int(counter/4)
             y_coord = int(counter-(x_coord*4))
-            my_axes[counter] = plt.subplot2grid((4,4),(x_coord,y_coord))
-            my_axes[counter].plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+            my_axes.append(plt.subplot2grid((4,4),(x_coord,y_coord)))
+            #my_axes[counter].plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+            self.fig.add_subplot(my_axes[counter])
 
+        print("Myaxes length: ", len(my_axes))
+        print("Myaxes type: ", type(my_axes))
+        print("Myaxes type: ", type(my_axes[0]))
         #self.ax = plt.axes()
         #self.gs = gridspec.GridSpec(4,4)
 
@@ -154,7 +158,7 @@ class MetaCapLibrary(object):
         #self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="solid", color="blue")
 
         # self.fig.add_subplot(self.ax)
-        self.fig.add_subplot(my_axes)
+        #self.fig.add_subplot(my_axes)
         self.fig.show()
         #self.fig.savefig()
         self.fig.waitforbuttonpress(timeout= -1)
