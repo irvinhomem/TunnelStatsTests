@@ -4,9 +4,10 @@ from MetaPacketCap import MetaPacketCap
 from MetaCapBase import MetaCapBase
 
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+#import matplotlib.gridspec as gridspec
 import tkinter as tk
 from tkinter import filedialog, simpledialog
+import math
 import os.path
 import pathlib
 
@@ -129,7 +130,21 @@ class MetaCapLibrary(object):
 
     def doSuperPlot(self, plot_statistic, markercolor):
         #self.fig = plt.figure(figsize=(12, 9), dpi=100, facecolor='w', edgecolor='k')
-        self.fig, self.ax = plt.subplots(4, 4, figsize=(16, 9), dpi=90, facecolor= 'w')
+        subplot_col_dim = 4 #columns
+        subplot_row_dim = math.ceil(len(self.packetLibrary)/subplot_col_dim) #Rows
+
+        self.fig, self.ax = plt.subplots(subplot_row_dim, subplot_col_dim,
+                                 figsize=(16, 9), dpi=90, facecolor= 'w')
+
+        # self.fig, self.ax = plt.subplots(subplot_row_dim, subplot_col_dim,
+        #                                  figsize=(16, 9), dpi=90, facecolor= 'w',
+        #                                  subplot_kw=dict(projection='rectilinear'))
+        # #projection= 'lambert'| 'mollweide'| 'hammer'| '3d'
+
+        # self.fig, self.ax = plt.subplots(subplot_row_dim, subplot_col_dim,
+        #                                  figsize=(16, 9), dpi=90, facecolor= 'w',
+        #                                  subplot_kw=dict(projection='polar'))
+        #self.fig, self.ax = plt.subplots(4, 4, figsize=(16, 9), dpi=90, facecolor= 'w')
         #self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
         #my_axes = []
         yVariable =[]
@@ -137,15 +152,32 @@ class MetaCapLibrary(object):
         for counter, cap in enumerate(self.packetLibrary):
             if plot_statistic == "HttpReqEntropy":
                 yVariable.append(cap.getHttpReqEntropy())
-            elif plot_statistic == "ftpReqEntropy":
-                yVariable.append(cap.getHttpReqEntropy())
+            elif plot_statistic == "IpHttpReqEntropy":
+                yVariable.append(cap.get_ip_pkt_http_req_entropy())
+            elif plot_statistic == "HttpReqLen":
+                yVariable.append(cap.getHttpReqLen())
+            elif plot_statistic == "FtpReqEntropy":
+                yVariable.append(cap.getFtpReqEntropy())
+            elif plot_statistic == "FtpReqLen":
+                yVariable.append(cap.getftpReqLen())
+            elif plot_statistic == "IpFtpReqEntropy":
+                yVariable.append(cap.get_ip_pkt_ftp_req_entropy())
+            elif plot_statistic == "IpPacketEntropy":
+                yVariable.append(cap.getIpPacketEntropy())
+            elif plot_statistic == "IpPktDnsReqEntropy":
+                yVariable.append(cap.get_ip_pkt_dns_req_entropy())
             print("CapLibPlotEntry: ", counter+1)
-            x_coord = int(counter/4)
-            y_coord = int(counter-(x_coord*4))
-            self.ax[x_coord, y_coord].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
 
-            plotTitle = plot_statistic + '(' + str(self.packetLibrary[counter].__getattribute__("pcapFilePath")).rsplit('/', 2)[1].lower() + ')'
-            self.ax[x_coord, y_coord].set_title(plotTitle, size = 8)
+            #x_coord = int(counter/4)
+            #y_coord = int(counter-(x_coord*4))
+            row_coord = int(counter/subplot_col_dim)
+            col_coord = int(counter-(row_coord*subplot_col_dim))
+            #self.ax[x_coord, y_coord].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+            self.ax[row_coord, col_coord].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="solid", color="blue")
+
+            plotTitle = plot_statistic + '\n(' + str(self.packetLibrary[counter].__getattribute__("pcapFilePath")).rsplit('/', 2)[2].lower() + ')'
+            self.ax[row_coord, col_coord].set_title(plotTitle, size = 8)
+            self.ax[row_coord, col_coord].tick_params(axis='both', labelsize='7')
             #self.ax[x_coord, y_coord].set_xlabel(xlbl, size=9)
             #self.ax[x_coord, y_coord].set_ylabel(ylbl, size=9)
 
@@ -168,29 +200,42 @@ class MetaCapLibrary(object):
 
         # self.fig.add_subplot(self.ax)
         #self.fig.add_subplot(my_axes)
+        self.fig.tight_layout()
         self.fig.show()
         #self.fig.savefig()
         self.fig.waitforbuttonpress(timeout= -1)
 
         return
 
+#Create a CapLibrary object
 httpCapLib = MetaCapLibrary()
-ftpCapLib = MetaCapLibrary()
+#ftpCapLib = MetaCapLibrary()
 
+# Load a CapLibrary from the PCAP files
 #httpCapLib.load_pcaps_from_files('http')
 #ftpCapLib.load_pcaps_from_files('ftp')
 
+# Load a CapLibrary from the 'base' location and filter according to the given filter
 #httpCapLib.load_specific_proto_from_base('http')
 httpCapLib.load_specific_proto_from_base('http','http')
 #print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
-#print("Length: ",  len(httpCapLib.get_packet_library()))
+print("Length: ",  len(httpCapLib.get_packet_library()))
 
-# ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
-# print("Length: ",  len(ftpCapLib.get_packet_library()))
+#ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
+#print("Length: ",  len(ftpCapLib.get_packet_library()))
 
 #httpMCap = httpCapLib.get_packet_library()[0]
 #httpMCap.doPlot(httpMCap.getHttpReqEntropy(), 'red', "HTTP Request Entropy", "Packet Sequence (Time)", "Byte (Char) Entropy per packet")
 
-#httpCapLib.doSuperPlot(httpCapLib.get_packet_library()[0].getHttpReqEntropy(), "red")
-httpCapLib.doSuperPlot('HttpReqEntropy', "red")
+#httpCapLib.doSuperPlot('HttpReqEntropy', "red")
+httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
+#httpCapLib.doSuperPlot('HttpReqLen', "red")
+
+#httpCapLib.doSuperPlot('IpPacketEntropy', "red")
+
+#ftpCapLib.doSuperPlot('FtpReqEntropy', "red")
+#ftpCapLib.doSuperPlot('IpFtpReqEntropy', "red") #<--- This
+#ftpCapLib.doSuperPlot('FtpReqLen', "red")
+
+#ftpCapLib.doSuperPlot('IpPacketEntropy', "red")
 
