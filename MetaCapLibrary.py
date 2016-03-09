@@ -129,8 +129,9 @@ class MetaCapLibrary(object):
 
     def doSuperPlot(self, plot_statistic, markercolor):
         #self.fig = plt.figure(figsize=(12, 9), dpi=100, facecolor='w', edgecolor='k')
-        self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
-        my_axes = []
+        self.fig, self.ax = plt.subplots(4, 4, figsize=(16, 9), dpi=90, facecolor= 'w')
+        #self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
+        #my_axes = []
         yVariable =[]
 
         for counter, cap in enumerate(self.packetLibrary):
@@ -141,13 +142,21 @@ class MetaCapLibrary(object):
             print("CapLibPlotEntry: ", counter+1)
             x_coord = int(counter/4)
             y_coord = int(counter-(x_coord*4))
-            my_axes.append(plt.subplot2grid((4,4),(x_coord,y_coord)))
-            #my_axes[counter].plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
-            self.fig.add_subplot(my_axes[counter])
+            self.ax[x_coord, y_coord].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
 
-        print("Myaxes length: ", len(my_axes))
-        print("Myaxes type: ", type(my_axes))
-        print("Myaxes type: ", type(my_axes[0]))
+            plotTitle = plot_statistic + '(' + str(self.packetLibrary[counter].__getattribute__("pcapFilePath")).rsplit('/', 2)[1].lower() + ')'
+            self.ax[x_coord, y_coord].set_title(plotTitle, size = 8)
+            #self.ax[x_coord, y_coord].set_xlabel(xlbl, size=9)
+            #self.ax[x_coord, y_coord].set_ylabel(ylbl, size=9)
+
+
+            #my_axes.append(plt.subplot2grid((4,4),(x_coord,y_coord)))
+            #my_axes[counter].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
+            #self.fig.add_subplot(my_axes[counter])
+
+        print("Myaxes length: ", len(self.ax))
+        print("Myaxes type: ", type(self.ax))
+        print("Myaxes type: ", type(self.ax[0]))
         #self.ax = plt.axes()
         #self.gs = gridspec.GridSpec(4,4)
 
