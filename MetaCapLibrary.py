@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 #import matplotlib.gridspec as gridspec
 import tkinter as tk
 from tkinter import filedialog, simpledialog
+import numpy as np
 import math
 import os.path
 import pathlib
@@ -151,6 +152,7 @@ class MetaCapLibrary(object):
         #self.fig = plt.figure(figsize=(16, 9), dpi=90, facecolor= 'w')
         #my_axes = []
         yVariable =[]
+        txtbox_props = dict(boxstyle ='round', facecolor='wheat', alpha=0.6)
 
         for counter, cap in enumerate(self.packetLibrary):
             if plot_statistic == "HttpReqEntropy":
@@ -184,10 +186,20 @@ class MetaCapLibrary(object):
             #self.ax[x_coord, y_coord].set_xlabel(xlbl, size=9)
             #self.ax[x_coord, y_coord].set_ylabel(ylbl, size=9)
 
+            avg = np.mean(yVariable[counter])
+            std_dev = np.std(yVariable[counter])
+            sigma_numbers = self.calc_sigma_numbers(yVariable[counter], avg, std_dev)
 
-            #my_axes.append(plt.subplot2grid((4,4),(x_coord,y_coord)))
-            #my_axes[counter].plot(yVariable[counter], marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
-            #self.fig.add_subplot(my_axes[counter])
+            textStr = '$\mu$ = ' + str(round(avg, 3)) + '\n' + \
+                      '$\sigma$ = ' + str(round(std_dev, 3)) + '\n \n' + \
+                      'Within: \n' + \
+                      '$\sigma$ = ' + str(sigma_numbers[0]) + '% \n' + \
+                      '2 $\sigma$ = ' + str(sigma_numbers[1]) + '% \n' + \
+                      '3 $\sigma$ = ' + str(sigma_numbers[2]) + '%'
+            self.ax[row_coord, col_coord].text(0.85, 0.95, textStr, va='top',
+                                               bbox=txtbox_props, transform=self.ax[row_coord, col_coord].transAxes,
+                                               fontsize=10) # ha='right',
+
 
         print("Myaxes length: ", len(self.ax))
         print("Myaxes type: ", type(self.ax))
@@ -210,29 +222,50 @@ class MetaCapLibrary(object):
 
         return
 
-#Create a CapLibrary object
-#httpCapLib = MetaCapLibrary()
+    def calc_sigma_numbers(self, yVarSet, avg, std_dev):
+        one_sigma = two_sigma = three_sigma = 0
+        one_sigma_percent = two_sigma_percent = three_sigma_percent = 0.0
+
+        if len(yVarSet) > 0:
+            for value in yVarSet:
+                if value > (avg-std_dev) and value < (avg+std_dev):
+                    one_sigma +=1
+                if value > (avg-(2*std_dev)) and value < (avg+(2*std_dev)):
+                    two_sigma +=1
+                if value > (avg-(3*std_dev)) and value < (avg+(3*std_dev)):
+                    three_sigma +=1
+
+            one_sigma_percent = round((one_sigma/len(yVarSet))*100, 2)
+            two_sigma_percent = round((two_sigma/len(yVarSet))*100, 2)
+            three_sigma_percent = round((three_sigma/len(yVarSet))*100, 2)
+
+        return one_sigma_percent, two_sigma_percent, three_sigma_percent
+
+
+# ####### Create a CapLibrary object  ########################################
+httpCapLib = MetaCapLibrary()
 #ftpCapLib = MetaCapLibrary()
 #httpOvDnsCapLib = MetaCapLibrary()
-ftpOvDnsCapLib = MetaCapLibrary()
+#ftpOvDnsCapLib = MetaCapLibrary()
 
-# Load a CapLibrary from the PCAP files
+# ####### Load a CapLibrary from the PCAP files  #############################
 #httpCapLib.load_pcaps_from_files('http')
 #ftpCapLib.load_pcaps_from_files('ftp')
 
-# Load a CapLibrary from the 'base' location and filter according to the given filter
+# ####### Load a CapLibrary from the 'base' location and filter according to the given filter  ###############
 #httpCapLib.load_specific_proto_from_base('http')
-#httpCapLib.load_specific_proto_from_base('http','http')
+httpCapLib.load_specific_proto_from_base('http','http')
 #print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
-#print("Length: ",  len(httpCapLib.get_packet_library()))
+print("Length: ",  len(httpCapLib.get_packet_library()))
 
 #ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
 #print("Length: ",  len(ftpCapLib.get_packet_library()))
 
 #httpOvDnsCapLib.load_specific_proto_from_base('http','dns')
-ftpOvDnsCapLib.load_specific_proto_from_base('ftp','dns')
+#ftpOvDnsCapLib.load_specific_proto_from_base('ftp','dns')
 
-#httpCapLib.doSuperPlot('HttpReqEntropy', "red")
+# ####### Do PLOTS  #############################################
+httpCapLib.doSuperPlot('HttpReqEntropy', "red")
 #httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
 #httpCapLib.doSuperPlot('HttpReqLen', "red")
 
@@ -245,5 +278,5 @@ ftpOvDnsCapLib.load_specific_proto_from_base('ftp','dns')
 #ftpCapLib.doSuperPlot('IpPacketEntropy', "red")
 
 #httpOvDnsCapLib.doSuperPlot('IpPktDnsReqEntropy', 'red')
-ftpOvDnsCapLib.doSuperPlot('IpPktDnsReqEntropy', 'red')
+#ftpOvDnsCapLib.doSuperPlot('IpPktDnsReqEntropy', 'red')
 
