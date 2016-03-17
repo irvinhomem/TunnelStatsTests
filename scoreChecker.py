@@ -5,15 +5,15 @@ from terminaltables import AsciiTable
 
 # Collect Packet Captures to Analyze
 # HTTP Base (HTTP Ground Truth)
-httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap")
+httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap", 'http')
 # httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
 
-ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap")
+ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap", 'ftp')
 # ftpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap")
 
 # Test Sample:
-#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
-x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap")
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap", 'http')
+x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap", 'ftp')
 
 print("Pcaps Loaded and Initialized ... ")
 
@@ -57,6 +57,11 @@ def simple_predictor(score_result, stat_measure):
             return 'HTTP'
         else:
             return 'FTP'
+    elif stat_measure == "2Samp_KSmirnov":
+        if abs(score_result[0]) < abs(score_result[1]):
+            return 'HTTP'
+        else:
+            return 'FTP'
     elif stat_measure == "Bhatta":
         if abs(score_result[0]) < abs(score_result[1]):
             return 'HTTP'
@@ -75,25 +80,29 @@ def simple_predictor(score_result, stat_measure):
     else:
         print("Undefined Stat Measure: ", stat_measure)
 
+
+
 kl_div_avg_score = calcAvgStatScores("KL-Divergence")
 spearmanr_avg_score = calcAvgStatScores("SpearmanR")
 pearson_avg_score = calcAvgStatScores("Pearson")
+ksmirnov_2samp_score = calcAvgStatScores("2Samp_KSmirnov")
 bhattacharya_avg_score = ''
 mahalanobis_avg_score = ''
 
 klDiv_res = simple_predictor(kl_div_avg_score, "KL-Divergence")
 spearmanr_res = simple_predictor(spearmanr_avg_score, "SpearmanR")
 pearson_res = simple_predictor(pearson_avg_score, "Pearson")
+ksimrnov_2samp_res = simple_predictor(ksmirnov_2samp_score, "2Samp_KSmirnov")
 bhattacharya_res = ''
 mahalanobis_res = ''
 
 table_data = [
-    ['Protocol/Stat','KL-Div','SpearmanR', 'Pearson', 'Bhattacharya', 'Mahalanobis'],
-    ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0]), str(''), str('')],
-    ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1]), str(''), str('')],
+    ['Protocol/Stat','KL-Div','SpearmanR', 'Pearson', 'KSmirnov-2Samp', 'Bhattacharya', 'Mahalanobis'],
+    ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0]), str(ksmirnov_2samp_score[0]), str(''), str('')],
+    ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1]), str(ksmirnov_2samp_score[1]), str(''), str('')],
     ['Difference: ', str(kl_div_avg_score[0] - kl_div_avg_score[1]), str(spearmanr_avg_score[0]- spearmanr_avg_score[1]),
-     str(pearson_avg_score[0] - pearson_avg_score[1]), str(''), str('')],
-    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, bhattacharya_res, mahalanobis_res]
+     str(pearson_avg_score[0] - pearson_avg_score[1]), str(pearson_avg_score[0] - pearson_avg_score[1]), str(''), str('')],
+    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, bhattacharya_res, mahalanobis_res]
 ]
 myTable = AsciiTable(table_data)
 myTable.inner_footing_row_border = True

@@ -8,11 +8,19 @@ import math
 class MetaPacketCap(object):
 
     def __init__(self, file_path, protoLabel):
+        '''
+
+        :param file_path: Set file path with 'None' if file_path given (indicates that it's a filtered pcap)
+                else. set the actual file_Path
+        :param protoLabel: Used to label the base file where the pcap file-path will be stored
+        :return:
+        '''
         self.pcapFilePath = file_path
         try:
-            self.cap = rdpcap(self.pcapFilePath)
+            if file_path > 0:
+                self.cap = rdpcap(self.pcapFilePath)
         except:
-            print("Pcap File MISSING at :", self.pcapFilePath)
+            print("Pcap File MISSING at :" + self.pcapFilePath + "or Filtered PCAP")
 
         self.protocolLabel = protoLabel
 

@@ -2,7 +2,7 @@
 # from collections import Counter, namedtuple
 
 from scipy.stats import kstest
-from scipy.stats import entropy, spearmanr, pearsonr
+from scipy.stats import entropy, spearmanr, pearsonr, ks_2samp
 from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
 
 import matplotlib.pyplot as plt
@@ -102,6 +102,10 @@ class PacketAnalyzer(object):
                 runningSum.append(self.calcPearson(twoSamples))
                 #runningSum += self.calcPearson()
                 continue
+            elif stat_measure == "2Samp_KSmirnov":
+                runningSum.append(self.calcKSmirnov_2Samp(twoSamples))
+                #runningSum += self.calcPearson()
+                continue
 
         #avg =  runningSum/sampling_rounds
         avg = np.average(runningSum)
@@ -138,6 +142,16 @@ class PacketAnalyzer(object):
         '''
         corrcoeff = pearsonr(twoSamples['testSeq'], twoSamples['grndTruthSeq'])
         return corrcoeff
+
+    def calcKSmirnov_2Samp(self, twoSamples):
+        '''
+
+        :param twoSamples:
+        :return:
+        '''
+        ks_stat, pval = ks_2samp(twoSamples['testSeq'], twoSamples['grndTruthSeq'])
+        return ks_stat, pval
+
 
     def calcMahalanobis(self, twoSamples):
         inv_vector =[]
