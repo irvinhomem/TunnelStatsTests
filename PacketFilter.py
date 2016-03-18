@@ -12,6 +12,7 @@ class PacketFilter(object):
         :param filter_str:
         :return:
         '''
+        return
 
     def comparison(self, comp_subj, comp_operator, comp_obj_string):
         '''
