@@ -26,7 +26,7 @@ def calcAvgStatScores(stat_measure_name):
     avg_score_to_HTTP, score_vals = pktAnlyzr.calcStatMeasureAvg(
         stat_measure_name,
         pktDgstr.getPopulationLists("HTTP",
-            x_over_DnsTun.getDnsPktEntropy(),
+            x_over_DnsTun.getDnsReqDataEntropy_upstream(),   # getDnsPktEntropy
             httpMcap.getHttpReqEntropy()),    # httpMcap.get_ip_pkt_http_req_entropy()    # getHttpReqEntropy
         1000)
 
@@ -34,7 +34,7 @@ def calcAvgStatScores(stat_measure_name):
     avg_score_to_FTP, score_vals = pktAnlyzr.calcStatMeasureAvg(
         stat_measure_name,
         pktDgstr.getPopulationLists("FTP",
-            x_over_DnsTun.getDnsPktEntropy(),
+            x_over_DnsTun.getDnsReqDataEntropy_upstream(),       #getDnsPktEntropy
             ftpMcap.getFtpReqEntropy()),      # ftpMcap.get_ip_pkt_ftp_req_entropy()      # getFtpReqEntropy
         1000)
     return avg_score_to_HTTP, avg_score_to_FTP

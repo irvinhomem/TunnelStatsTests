@@ -17,10 +17,10 @@ class MetaPacketCap(object):
         '''
         self.pcapFilePath = file_path
         try:
-            if file_path > 0:
+            if len(file_path) > 0:
                 self.cap = rdpcap(self.pcapFilePath)
         except:
-            print("Pcap File MISSING at :" + self.pcapFilePath + "or Filtered PCAP")
+            print("Pcap File MISSING at :" + self.pcapFilePath + " or Filtered PCAP")
 
         self.protocolLabel = protoLabel
 
@@ -108,6 +108,22 @@ class MetaPacketCap(object):
         self.specificPktLens = [len(pkt[IP][UDP][DNS])
                            for pkt in self.cap if UDP in pkt and pkt[UDP].dport==53]
         return self.specificPktLens
+
+    def getDnsReqDataEntropy_upstream(self):
+        # From the documentation /reverse engineering Iodine (IP-Over-DNS) by Stalkr it is seen that:
+        #  - Client (upstream) REQUESTS are encoded, compressed and placed into the 'DNS Query Name', while
+        #  - Server (downstream) RESPONSES are only optionally compressed and placed into the 'DNS Resource Record'.
+
+        topdomain = b'.barns.crabdance.com.'
+        scapy_qry_req = pkt[IP][UDP][DNS][DNSQR].qname
+        scapy_cleaned_qry_req = scapy_qry_req[5:-len(topdomain)].replace(b'.', b'')
+
+        for pkt in self.cap:
+            if UDP in pkt and DNSQR in pkt and len([DNSQR].qname) > 0 and pkt[UDP].dport==53:
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(scapy_qry_req)))
+                                  for pkt in self.cap if UDP in pkt and DNSQR in pkt
+                                  and len([DNSQR].qname) > 0 and pkt[UDP].dport==53]
+        return self.pktCharEntropySeq
 
 #---------------------------------#
 ######  IP Packet Methods    ######
