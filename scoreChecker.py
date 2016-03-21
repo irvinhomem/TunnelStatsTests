@@ -11,9 +11,16 @@ httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap",
 ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap", 'ftp')
 # ftpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap")
 
-# Test Sample:
+# Test Sample (**Stuff Tunnelled over DNS**):
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap", 'http')
-x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/HTTP/amazon.com/amazon.com-2016-02-25-T190359-HTovDNS-incog.pcapng", 'http')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/HTTP/bbc.co.uk/bbc.co.uk-2016-02-25-T190746-HTovDNS-incog.pcapng", 'http')
+x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/HTTP/craigslist.org/craigslist.org-2016-02-25-T185633-HTovDNS-incog.pcapng", 'http')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile-dl-small.pcapng", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile2-dl-Big.pcapng", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PDF/FTovDNS-PDF-dl-Big.pcapng", 'ftp')
+
 
 print("Pcaps Loaded and Initialized ... ")
 
@@ -101,7 +108,7 @@ table_data = [
     ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0]), str(ksmirnov_2samp_score[0]), str(''), str('')],
     ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1]), str(ksmirnov_2samp_score[1]), str(''), str('')],
     ['Difference: ', str(kl_div_avg_score[0] - kl_div_avg_score[1]), str(spearmanr_avg_score[0]- spearmanr_avg_score[1]),
-     str(pearson_avg_score[0] - pearson_avg_score[1]), str(pearson_avg_score[0] - pearson_avg_score[1]), str(''), str('')],
+     str(pearson_avg_score[0] - pearson_avg_score[1]), str(ksmirnov_2samp_score[0] - ksmirnov_2samp_score[1]), str(''), str('')],
     ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, bhattacharya_res, mahalanobis_res]
 ]
 myTable = AsciiTable(table_data)

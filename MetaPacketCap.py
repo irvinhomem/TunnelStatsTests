@@ -115,14 +115,18 @@ class MetaPacketCap(object):
         #  - Server (downstream) RESPONSES are only optionally compressed and placed into the 'DNS Resource Record'.
 
         topdomain = b'.barns.crabdance.com.'
-        scapy_qry_req = pkt[IP][UDP][DNS][DNSQR].qname
-        scapy_cleaned_qry_req = scapy_qry_req[5:-len(topdomain)].replace(b'.', b'')
-
         for pkt in self.cap:
-            if UDP in pkt and DNSQR in pkt and len([DNSQR].qname) > 0 and pkt[UDP].dport==53:
-        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(scapy_qry_req)))
-                                  for pkt in self.cap if UDP in pkt and DNSQR in pkt
-                                  and len([DNSQR].qname) > 0 and pkt[UDP].dport==53]
+            # if UDP in pkt and DNSQR in pkt and len([DNSQR].qname) > 0 and pkt[UDP].dport==53:
+            if pkt.haslayer(DNS) and pkt[UDP].dport==53:
+                # scapy_qry_req = pkt[IP][UDP][DNS][DNSQR].qname
+                scapy_qry_req = pkt[DNSQR].qname
+                scapy_cleaned_qry_req = scapy_qry_req[5:-len(topdomain)].replace(b'.', b'')
+
+                self.pktCharEntropySeq.append(self.calcEntropy(Counter(bytes(scapy_cleaned_qry_req))))
+
+        # self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(scapy_qry_req)))
+        #                           for pkt in self.cap if UDP in pkt and DNSQR in pkt
+        #                           and len([DNSQR].qname) > 0 and pkt[UDP].dport==53]
         return self.pktCharEntropySeq
 
 #---------------------------------#
