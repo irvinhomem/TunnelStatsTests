@@ -10,6 +10,7 @@ import matplotlib.lines as mlines
 import numpy as np
 import math
 import random
+import heapq
 
 import sklearn
 import time
@@ -106,6 +107,14 @@ class PacketAnalyzer(object):
                 runningSum.append(self.calcKSmirnov_2Samp(twoSamples))
                 #runningSum += self.calcPearson()
                 continue
+            elif stat_measure == "MeanDiff":
+                runningSum.append(self.calcMeanDiff(twoSamples))
+                #runningSum += self.calcPearson()
+                continue
+            elif stat_measure == "StdDevDiff":
+                runningSum.append(self.calcStdDevDiff(twoSamples))
+                #runningSum += self.calcPearson()
+                continue
 
         #avg =  runningSum/sampling_rounds
         avg = np.average(runningSum)
@@ -152,6 +161,61 @@ class PacketAnalyzer(object):
         ks_stat, pval = ks_2samp(twoSamples['testSeq'], twoSamples['grndTruthSeq'])
         return ks_stat, pval
 
+    def calcMeanDiff(self, twoSamples):
+        '''
+
+        :param twoSamples:
+        :return:
+        '''
+        meanTestSeq = np.average(twoSamples['testSeq'])
+        meanGrndTruthSeq = np.average(twoSamples['grndTruthSeq'])
+        meanDiff = abs(meanTestSeq - meanGrndTruthSeq)
+        return meanDiff
+
+    def calcStdDevDiff(self, twoSamples):
+        '''
+
+        :param twoSamples:
+        :return:
+        '''
+        stdTestSeq = np.std(twoSamples['testSeq'])
+        stdGrndTruthSeq = np.std(twoSamples['grndTruthSeq'])
+        stdDevDiff = abs(stdTestSeq - stdGrndTruthSeq)
+        return stdDevDiff
+
+    def calcMaxDiff(self, twoSamples):
+        '''
+
+        :param twoSamples:
+        :return:
+        '''
+        maxTestSeq = np.nanmax(twoSamples['testSeq'])
+        maxGrndTruthSeq = np.nanmax(twoSamples['grndTruthSeq'])
+        return abs(maxTestSeq - maxGrndTruthSeq)
+
+    def calcMinDiff(self):
+        '''
+
+        :return:
+        '''
+
+    def calcMinMaxDiff(self):
+        '''
+
+        :return:
+        '''
+
+    def calcAvgMinMaxDiff(self, twoSamples):
+        avgMinMaxDiff = 0
+        if len(twoSamples['testSeq']) > 4 and len(twoSamples['grndTruthSeq']>4):
+            avg5max_test = heapq.nlargest(5, twoSamples['testSeq'])
+            avg5min_test = heapq.nsmallest(5, twoSamples['testSeq'])
+
+            avg5max_grnd = heapq.nlargest(5, twoSamples['grndTruthSeq'])
+            avg5min_grnd = heapq.nsmallest(5, twoSamples['grndTruthSeq'])
+
+            avgMinMaxDiff = abs(avg5max_test-avg5min_test) - abs(avg5max_grnd-avg5min_grnd)
+        return avgMinMaxDiff
 
     def calcMahalanobis(self, twoSamples):
         inv_vector =[]

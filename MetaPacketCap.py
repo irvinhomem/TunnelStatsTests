@@ -4,6 +4,7 @@
 from scapy.all import *
 from collections import Counter, namedtuple
 import math
+import zlib as zl
 
 class MetaPacketCap(object):
 
@@ -80,6 +81,16 @@ class MetaPacketCap(object):
                                   for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
         return self.pktCharEntropySeq
 
+    def getCompressedHttpReqEntropy(self):
+        '''
+        Get the Entropy of only the HTTP Request characters in TCP packets
+        that have a payload and have the destination port = 80
+        :return:
+        '''
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(zl.compress(pkt[IP][TCP][Raw].load))))
+                                  for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
+        return self.pktCharEntropySeq
+
     def getHttpReqLen(self):
         self.specificPktLens = [len(pkt[IP][TCP][Raw].load)
                            for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==80]
@@ -121,6 +132,7 @@ class MetaPacketCap(object):
                 # scapy_qry_req = pkt[IP][UDP][DNS][DNSQR].qname
                 scapy_qry_req = pkt[DNSQR].qname
                 scapy_cleaned_qry_req = scapy_qry_req[5:-len(topdomain)].replace(b'.', b'')
+                #scapy_cleaned_decompressed_qry_req = zl.decompress(scapy_cleaned_qry_req)
 
                 self.pktCharEntropySeq.append(self.calcEntropy(Counter(bytes(scapy_cleaned_qry_req))))
 
@@ -155,6 +167,11 @@ class MetaPacketCap(object):
 
     def getFtpReqEntropy(self):
         self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(pkt[IP][TCP][Raw].load)))
+                                  for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==21]
+        return self.pktCharEntropySeq
+
+    def getCompressedFtpReqEntropy(self):
+        self.pktCharEntropySeq = [self.calcEntropy(Counter(bytes(zl.compress(pkt[IP][TCP][Raw].load))))
                                   for pkt in self.cap if TCP in pkt and Raw in pkt and pkt[TCP].dport==21]
         return self.pktCharEntropySeq
 
