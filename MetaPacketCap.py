@@ -16,12 +16,16 @@ class MetaPacketCap(object):
         :param protoLabel: Used to label the base file where the pcap file-path will be stored
         :return:
         '''
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+
         self.pcapFilePath = file_path
         try:
             if len(file_path) > 0:
                 self.cap = rdpcap(self.pcapFilePath)
         except:
-            print("Pcap File MISSING at :" + self.pcapFilePath + " or Filtered PCAP")
+            self.logger.warning("Pcap File MISSING at : [%s] or Filtered PCAP" % self.pcapFilePath)
 
         self.protocolLabel = protoLabel
 
@@ -35,8 +39,8 @@ class MetaPacketCap(object):
         self.fig = None #plt.figure()
         self.ax = None #plt.axes()
 
-        print("Finished initializing and reading pcap file ...")
-        print("Type : ", type(self.cap))
+        self.logger.info("Finished initializing and reading pcap file ...")
+        self.logger.info("Type : %s" % str(type(self.cap)))
 
     def add_proto_label(self, newProtoLabel):
         self.protocolLabel = newProtoLabel

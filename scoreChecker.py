@@ -1,5 +1,6 @@
 from PacketAnalyzer import PacketAnalyzer
 from MetaPacketCap import MetaPacketCap
+from MetaCapLibrary import MetaCapLibrary
 from PacketDigester import PacketDigester
 from terminaltables import AsciiTable
 
@@ -51,9 +52,9 @@ def simple_predictor(score_result, stat_measure):
     # score_result[1] is avg_score_to_FTP
     if stat_measure == "KL-Divergence":
         if score_result[0] < score_result[1]:
-            return 'HTTP'
+            return 'HT'
         else:
-            return 'FTP'
+            return 'FT'
     elif stat_measure == "SpearmanR":
         if abs(score_result[0]) < abs(score_result[1]):
             return 'HTTP'
@@ -66,9 +67,9 @@ def simple_predictor(score_result, stat_measure):
             return 'FTP'
     elif stat_measure == "2Samp_KSmirnov":
         if abs(score_result[0]) < abs(score_result[1]):
-            return 'HTTP'
+            return 'HT'
         else:
-            return 'FTP'
+            return 'FT'
     elif stat_measure == "MeanDiff":
         if abs(score_result[0]) < abs(score_result[1]):
             return 'HTTP'
@@ -96,7 +97,6 @@ def simple_predictor(score_result, stat_measure):
             return 'FTP'
     else:
         print("Undefined Stat Measure: ", stat_measure)
-
 
 
 kl_div_avg_score = calcAvgStatScores("KL-Divergence")
@@ -134,10 +134,5 @@ myTable = AsciiTable(table_data)
 myTable.inner_footing_row_border = True
 print(myTable.table)
 
-# print("Scores:" )
-# print("Against HTTP: ")
-# print("\t KL-Div score: ", avgKLd20_to_HTTP)
-# print("Against FTP: ")
-# print("\t KL-Div score: ", avgKLd20_to_FTP)
-# print("Difference: ", avgKLd20_to_HTTP - avgKLd20_to_FTP)
+
 

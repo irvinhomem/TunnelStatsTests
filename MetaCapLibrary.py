@@ -11,10 +11,14 @@ import numpy as np
 import math
 import os.path
 import pathlib
+import logging
 
 class MetaCapLibrary(object):
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+
         self.packetLibrary = []
         root = tk.Tk()
         root.withdraw()
@@ -32,7 +36,8 @@ class MetaCapLibrary(object):
         options['multiple'] = 'True'
 
         self.capbase = MetaCapBase()
-        print('capbase directory: ', self.capbase.base_loc)
+        self.logger.info(str('capbase directory: ' + self.capbase.get_base_loc()))
+
         self.fig = None
         self.ax = None
         self.gs = None
@@ -56,7 +61,7 @@ class MetaCapLibrary(object):
 
         #If protocol base is not known, ASK!
         if protocol_base is None or protocol_base == '' or protocol_base == 'unknown':
-            print("Protocol Base is: ", protocol_base)
+            self.logger.info("Protocol Base is: %s" % (protocol_base))
             protocol_base = simpledialog.askstring(
                 "Base Protocol", "What is the possible base protocol?", initialvalue="unknown")
 
@@ -70,20 +75,20 @@ class MetaCapLibrary(object):
 
     def write_path_to_base(self, base_file_name, f_path):
         if self.capbase.base_loc == '':
-            print("Base not yet set")
+            self.logger.info("Base not yet set")
         elif self.capbase.base_loc == 'unknown':
-            print("WARNING: Base is 'unknown' ")
+            self.logger.warning("WARNING: Base is 'unknown' ")
         p = pathlib.Path(self.capbase.base_loc + '/' + base_file_name)
         try:
             with p.open('r') as rf:
                 #Check if entry exists
                 if f_path in rf.read():
-                    print('Already existing PcapPath! : ' + f_path )
+                    self.logger.info('Already existing PcapPath! : ' + f_path )
                 else:
                     with p.open('a+') as f:
                         f.write(f_path+'\n')
         except:
-            print("Base File Path does not exist ... creating base protocol store at: " +
+            self.logger.info("Base File Path does not exist ... creating base protocol store at: " +
                   self.capbase.base_loc + '/' + base_file_name)
             file = open(self.capbase.base_loc + '/' + base_file_name, 'a+')
             file.write(f_path+'\n')
@@ -116,16 +121,16 @@ class MetaCapLibrary(object):
                             skipped +=1
                 #pathList = rf.readlines()
         except:
-            print("Base File Path does not exist ...")
+            self.logger.warning("Base File Path does not exist ...")
 
-        print("Skipped/Filtered out entries from base: ", skipped)
+        self.logger.info(str("Skipped/Filtered out entries from base: %i" % skipped))
 
         if len(pathList) > 0:
             for counter,file_path in enumerate(pathList):
                 self.packetLibrary.append(MetaPacketCap(str(file_path).rstrip(),protocolLabel))
-                print("CapLibEntry: ", counter+1)
+                self.logger.info(str("CapLibEntry: %i" % (counter+1)))
         else:
-            print("Base Protocol file is empty.")
+            self.logger.warning("Base Protocol file is empty.")
 
         return
 
@@ -171,7 +176,7 @@ class MetaCapLibrary(object):
                 yVariable.append(cap.getIpPacketEntropy())
             elif plot_statistic == "IpPktDnsReqEntropy":
                 yVariable.append(cap.get_ip_pkt_dns_req_entropy())
-            print("CapLibPlotEntry: ", counter+1)
+            self.logger.info("CapLibPlotEntry: ", counter+1)
 
             #x_coord = int(counter/4)
             #y_coord = int(counter-(x_coord*4))
@@ -201,9 +206,9 @@ class MetaCapLibrary(object):
                                                fontsize=10) # ha='right',
 
 
-        print("Myaxes length: ", len(self.ax))
-        print("Myaxes type: ", type(self.ax))
-        print("Myaxes type: ", type(self.ax[0]))
+        self.logger.info("Myaxes length: %i" % len(self.ax))
+        self.logger.info("Myaxes type: %s" % str(type(self.ax)))
+        self.logger.info("Myaxes type: %s" % str(type(self.ax[0])))
         #self.ax = plt.axes()
         #self.gs = gridspec.GridSpec(4,4)
 
@@ -243,7 +248,7 @@ class MetaCapLibrary(object):
 
 
 # ####### Create a CapLibrary object  ########################################
-httpCapLib = MetaCapLibrary()
+#httpCapLib = MetaCapLibrary() # <<-----------
 #ftpCapLib = MetaCapLibrary()
 #httpOvDnsCapLib = MetaCapLibrary()
 #ftpOvDnsCapLib = MetaCapLibrary()
@@ -254,9 +259,9 @@ httpCapLib = MetaCapLibrary()
 
 # ####### Load a CapLibrary from the 'base' location and filter according to the given filter  ###############
 #httpCapLib.load_specific_proto_from_base('http')
-httpCapLib.load_specific_proto_from_base('http','http')
+#httpCapLib.load_specific_proto_from_base('http','http')   # <<-----------
 #print("Length: ",  len(httpCapLib.__getattribute__("packetLibrary")))
-print("Length: ",  len(httpCapLib.get_packet_library()))
+#print("Length: ",  len(httpCapLib.get_packet_library()))    # <<-----------
 
 #ftpCapLib.load_specific_proto_from_base('ftp', 'ftp')
 #print("Length: ",  len(ftpCapLib.get_packet_library()))
@@ -265,7 +270,7 @@ print("Length: ",  len(httpCapLib.get_packet_library()))
 #ftpOvDnsCapLib.load_specific_proto_from_base('ftp','dns')
 
 # ####### Do PLOTS  #############################################
-httpCapLib.doSuperPlot('HttpReqEntropy', "red")
+#httpCapLib.doSuperPlot('HttpReqEntropy', "red") # <<-----------
 #httpCapLib.doSuperPlot('IpHttpReqEntropy', "red")
 #httpCapLib.doSuperPlot('HttpReqLen', "red")
 
