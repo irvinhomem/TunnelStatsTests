@@ -18,8 +18,8 @@ ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap", '
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/HTTP/craigslist.org/craigslist.org-2016-02-25-T185633-HTovDNS-incog.pcapng", 'http')
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap", 'ftp')
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile-dl-small.pcapng", 'ftp')
-#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile2-dl-Big.pcapng", 'ftp')
-x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PDF/FTovDNS-PDF-dl-Big.pcapng", 'ftp')
+x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile2-dl-Big.pcapng", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PDF/FTovDNS-PDF-dl-Big.pcapng", 'ftp')
 
 
 print("Pcaps Loaded and Initialized ... ")
