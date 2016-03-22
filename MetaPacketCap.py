@@ -18,7 +18,9 @@ class MetaPacketCap(object):
         '''
 
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.WARNING)
 
         self.pcapFilePath = file_path
         try:
@@ -40,10 +42,13 @@ class MetaPacketCap(object):
         self.ax = None #plt.axes()
 
         self.logger.info("Finished initializing and reading pcap file ...")
-        self.logger.info("Type : %s" % str(type(self.cap)))
+        self.logger.debug("Type : %s" % str(type(self.cap)))
 
     def add_proto_label(self, newProtoLabel):
         self.protocolLabel = newProtoLabel
+
+    def get_proto_label(self):
+        return self.protocolLabel
 
     def calcEntropy(self, myFreqDict):
         '''

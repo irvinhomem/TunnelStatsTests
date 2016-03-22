@@ -18,6 +18,7 @@ class MetaCapLibrary(object):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.DEBUG)
 
         self.packetLibrary = []
         root = tk.Tk()
@@ -36,7 +37,7 @@ class MetaCapLibrary(object):
         options['multiple'] = 'True'
 
         self.capbase = MetaCapBase()
-        self.logger.info(str('capbase directory: ' + self.capbase.get_base_loc()))
+        self.logger.debug(str('capbase directory: ' + self.capbase.get_base_loc()))
 
         self.fig = None
         self.ax = None
@@ -75,7 +76,7 @@ class MetaCapLibrary(object):
 
     def write_path_to_base(self, base_file_name, f_path):
         if self.capbase.base_loc == '':
-            self.logger.info("Base not yet set")
+            self.logger.warning("Base not yet set")
         elif self.capbase.base_loc == 'unknown':
             self.logger.warning("WARNING: Base is 'unknown' ")
         p = pathlib.Path(self.capbase.base_loc + '/' + base_file_name)
@@ -83,12 +84,12 @@ class MetaCapLibrary(object):
             with p.open('r') as rf:
                 #Check if entry exists
                 if f_path in rf.read():
-                    self.logger.info('Already existing PcapPath! : ' + f_path )
+                    self.logger.warning('Already existing PcapPath! : ' + f_path )
                 else:
                     with p.open('a+') as f:
                         f.write(f_path+'\n')
         except:
-            self.logger.info("Base File Path does not exist ... creating base protocol store at: " +
+            self.logger.warning("Base File Path does not exist ... creating base protocol store at: " +
                   self.capbase.base_loc + '/' + base_file_name)
             file = open(self.capbase.base_loc + '/' + base_file_name, 'a+')
             file.write(f_path+'\n')
@@ -128,7 +129,7 @@ class MetaCapLibrary(object):
         if len(pathList) > 0:
             for counter,file_path in enumerate(pathList):
                 self.packetLibrary.append(MetaPacketCap(str(file_path).rstrip(),protocolLabel))
-                self.logger.info(str("CapLibEntry: %i" % (counter+1)))
+                self.logger.debug(str("CapLibEntry: %i" % (counter+1)))
         else:
             self.logger.warning("Base Protocol file is empty.")
 
@@ -176,7 +177,7 @@ class MetaCapLibrary(object):
                 yVariable.append(cap.getIpPacketEntropy())
             elif plot_statistic == "IpPktDnsReqEntropy":
                 yVariable.append(cap.get_ip_pkt_dns_req_entropy())
-            self.logger.info("CapLibPlotEntry: ", counter+1)
+            self.logger.debug("CapLibPlotEntry: ", counter+1)
 
             #x_coord = int(counter/4)
             #y_coord = int(counter-(x_coord*4))
@@ -206,9 +207,9 @@ class MetaCapLibrary(object):
                                                fontsize=10) # ha='right',
 
 
-        self.logger.info("Myaxes length: %i" % len(self.ax))
-        self.logger.info("Myaxes type: %s" % str(type(self.ax)))
-        self.logger.info("Myaxes type: %s" % str(type(self.ax[0])))
+        self.logger.debug("Myaxes length: %i" % len(self.ax))
+        self.logger.debug("Myaxes type: %s" % str(type(self.ax)))
+        self.logger.debug("Myaxes type: %s" % str(type(self.ax[0])))
         #self.ax = plt.axes()
         #self.gs = gridspec.GridSpec(4,4)
 
