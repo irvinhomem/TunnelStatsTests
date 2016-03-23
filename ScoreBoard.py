@@ -25,8 +25,8 @@ class ScoreBoard(object):
         self.testSampleLib_list = []
 
         self.stats_list = ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff']
-        self.scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
-        self.scoreList = []
+        #self.scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
+        self.testScoreList = []
 
     def load_ground_truths(self):
         # Load GroundTruth library / base (Filtered)
@@ -109,6 +109,13 @@ class ScoreBoard(object):
         # return avg_score_to_HTTP, avg_score_to_FTP
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
+class TestScores(object):
+
+    def __init__(self):
+        self.test_sample_pcap_name = ''
+        self.grnd_truth_against = ''
+        self.stat_scores = dict(kl_div=0.0, pearson=0.0)
+
 myScoreB = ScoreBoard()
 
 # Load GroundTruth library / base (Filtered)
@@ -119,20 +126,37 @@ myScoreB.load_test_sample_pcaps()
 
 # Generally: Pick a specific test-PCAP file and compare it against the Ground Truth Base files / Statistics
 for sample_lib in myScoreB.testSampleLib_list:
+    # There are 2 test sample libs at the moment: FTP and HTTP (Containing both 'plain' and 'over DNS')
     myScoreB.logger.debug('In Sample Lib: %s' % sample_lib.capbase.get_base_loc())
-    for mcap_test in sample_lib.get_packet_library():
-        myScoreB.logger.debug('In Test MCap: %s' % mcap_test.pcapFilePath)
+    for mpcap_test in sample_lib.get_packet_library():
+        # Get a particular MetaPacketCap test sample
+        myScoreB.logger.debug('In Test MCap: %s' % mpcap_test.pcapFilePath)
+        newTestScore = TestScores()
+        grnd_comp_scores = dict(grnd_truth_lbl='', scoreDict={})
         for grnd_lib in myScoreB.grndTruthLib_list:
+            # There are 2 Ground Truth libs at the moment (FTP and HTTP) corresponding to the test sample libs
             myScoreB.logger.debug('In Grnd Lib: %s' % grnd_lib.capbase.get_base_loc())
-            for mcap_grnd in grnd_lib.get_packet_library():
-                myScoreB.logger.debug('In Grnd MCap: %s' % mcap_grnd.pcapFilePath)
+
+            for mpcap_grnd in grnd_lib.get_packet_library():
+                # Get a particular ground truth MetaPacket cap to test against the given MetaPacketCap test sample
+                myScoreB.logger.debug('In Grnd MCap: %s' % mpcap_grnd.pcapFilePath)
+                scoreDict_perGrnd = None
                 for stat in myScoreB.getStats_list():
                     myScoreB.logger.debug('Calculating Stat: %s' % stat)
                     #myScoreB.scoreDict = myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd)
-                    myScoreB.scoreList.append(myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd))
+                    #myScoreB.scoreList.append(myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd))
+                    #scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
+                    stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
+                    scoreDict_perGrnd = dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label)
+                    myScoreB.logger.debug('Score-Dict per-Ground: %i' % len(scoreDict_perGrnd))
+                grnd_comp_scores = dict(grnd_truth_lbl=mpcap_grnd.pcapFileName, scoreDict=scoreDict_perGrnd)
+        test_against_grnd_dict = dict(test_cap=mpcap_test.pcapFileName, test_scores=grnd_comp_scores)
+
+
+        #myScoreB.testScoreList.append([, ])
 
 #myScoreB.logger.debug("Score Dict Len: %i" % len(myScoreB.scoreDict))
-myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
+#myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
 
 
 

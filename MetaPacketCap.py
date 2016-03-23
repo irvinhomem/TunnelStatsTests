@@ -23,9 +23,12 @@ class MetaPacketCap(object):
         self.logger.setLevel(logging.WARNING)
 
         self.pcapFilePath = file_path
+        self.pcapFileName = ''
         try:
             if len(file_path) > 0:
                 self.cap = rdpcap(self.pcapFilePath)
+                self.pcapFileName = str(self.pcapFilePath).rsplit('/',1)[1]
+                self.logger.debug("Pcap File Name: %s" % self.pcapFileName)
         except:
             self.logger.warning("Pcap File MISSING at : [%s] or Filtered PCAP" % self.pcapFilePath)
 
