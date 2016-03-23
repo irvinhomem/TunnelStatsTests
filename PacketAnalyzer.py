@@ -15,6 +15,8 @@ import heapq
 import sklearn
 import time
 
+import logging
+
 # from PacketDigester import PacketDigester
 
 
@@ -26,9 +28,14 @@ class PacketAnalyzer(object):
     def __init__(self):
         '''Do initialization stuff'''
 
+        self.logger = logging.getLogger(__name__)
+        #self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.WARNING)
+
         self.fig = plt.figure()
         self.ax = plt.axes()
-        print("Finished initializing Analysis stuff ...")
+        self.logger.debug("Finished initializing Analysis stuff ...")
         # print("Type : ", type(self.cap))
 
     def getEquiSampleLen(self, fullTestSeq, fullGrndTruthSeq):
@@ -50,15 +57,32 @@ class PacketAnalyzer(object):
         - Returns 2 samples of the same length; one from the test sample and one from the "ground truth"
         :return: A Dictionary containing the 2 list/seq samples (testSeq,grndTruthSeq)
         '''
+        if len(fullTestSeq) <= 1:
+            self.logger.warning('Test Seqence length is Zero')
+            exit()
+        elif len(fullGrndTruthSeq) <= 1:
+            self.logger.warning('Grnd Truth Seqence length is Zero')
+            exit()
+
         newSeqLen = self.getEquiSampleLen(fullTestSeq, fullGrndTruthSeq)
+        self.logger.debug('New Equalized Sequence Length: %i' % newSeqLen)
+
         testSeqStart = random.randint(1, len(fullTestSeq) - newSeqLen)
-        grndTruthSeqStart = random.randint(1, len(fullGrndTruthSeq) - newSeqLen)
+        self.logger.debug('Sample Test Seq Starting Point: %i' % testSeqStart)
 
-        # print("Sample Test Seq Starting Point: ", testSeqStart)
-        # print("Ground Truth Seq Starting Point: ", grndTruthSeqStart)
+        maxEnd_Grnd_Seq = len(fullGrndTruthSeq) - newSeqLen
+        self.logger.debug('Grnd Truth Seq Max End Point: %i' % maxEnd_Grnd_Seq)
+        if maxEnd_Grnd_Seq < 1:
+            grndTruthSeqStart = 1
+            newTestSeqList = fullTestSeq[testSeqStart:testSeqStart + (newSeqLen-1)]
+            newgrndTruthSeqList = fullGrndTruthSeq[grndTruthSeqStart:grndTruthSeqStart + (newSeqLen-1)]
+        else:
+            grndTruthSeqStart = random.randint(1, len(fullGrndTruthSeq) - newSeqLen)
 
-        newTestSeqList = fullTestSeq[testSeqStart:testSeqStart + newSeqLen]
-        newgrndTruthSeqList = fullGrndTruthSeq[grndTruthSeqStart:grndTruthSeqStart + newSeqLen]
+            newTestSeqList = fullTestSeq[testSeqStart:testSeqStart + newSeqLen]
+            newgrndTruthSeqList = fullGrndTruthSeq[grndTruthSeqStart:grndTruthSeqStart + newSeqLen]
+
+        self.logger.debug('Ground Truth Seq Starting Point: %i' % grndTruthSeqStart)
 
         multiSampleSeq= dict(testSeq=[],grndTruthSeq=[])
         multiSampleSeq["testSeq"] = newTestSeqList
@@ -86,6 +110,8 @@ class PacketAnalyzer(object):
         #runningSum = 0
         runningSum = []
         runningSum.clear()
+        self.logger.debug("Test Pop Length: %i" % len(testPopulationSeqs['testSeq']))
+        self.logger.debug("Grnd Truth Pop Length: %i" % len(testPopulationSeqs['grndTruthSeq']))
 
         for i in range(sampling_rounds):
             twoSamples = self.getTwoEquiLenSamples(testPopulationSeqs['testSeq'], testPopulationSeqs['grndTruthSeq'])

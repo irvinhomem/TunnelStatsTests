@@ -106,6 +106,7 @@ class MetaCapLibrary(object):
         # ('filterContainsTerm' checks the filenames of the pcap files for the given term,
         # so name your pcap files appropriately with indicative terms of what you expect in them)
         #Read protocol base file store and append entries into local packetLibrary list
+        self.logger.debug('Reading from %s base file' % protocolLabel)
         p = pathlib.Path(self.capbase.base_loc + '/' + protocolLabel)
         pathList = []
         skipped = 0
