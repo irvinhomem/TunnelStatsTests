@@ -123,7 +123,7 @@ myScoreB.load_ground_truths()
 
 # Load Test-PCAP library / base (Filtered)
 myScoreB.load_test_sample_pcaps()
-
+test_against_grnd_dict = []
 # Generally: Pick a specific test-PCAP file and compare it against the Ground Truth Base files / Statistics
 for sample_lib in myScoreB.testSampleLib_list:
     # There are 2 test sample libs at the moment: FTP and HTTP (Containing both 'plain' and 'over DNS')
@@ -133,30 +133,37 @@ for sample_lib in myScoreB.testSampleLib_list:
         myScoreB.logger.debug('In Test MCap: %s' % mpcap_test.pcapFilePath)
         newTestScore = TestScores()
         grnd_comp_scores = dict(grnd_truth_lbl='', scoreDict={})
+        grnd_truth_scores_aggr = []
         for grnd_lib in myScoreB.grndTruthLib_list:
             # There are 2 Ground Truth libs at the moment (FTP and HTTP) corresponding to the test sample libs
             myScoreB.logger.debug('In Grnd Lib: %s' % grnd_lib.capbase.get_base_loc())
-
             for mpcap_grnd in grnd_lib.get_packet_library():
                 # Get a particular ground truth MetaPacket cap to test against the given MetaPacketCap test sample
                 myScoreB.logger.debug('In Grnd MCap: %s' % mpcap_grnd.pcapFilePath)
-                scoreDict_perGrnd = None
+                scoreDict_perGrnd = []
                 for stat in myScoreB.getStats_list():
                     myScoreB.logger.debug('Calculating Stat: %s' % stat)
                     #myScoreB.scoreDict = myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd)
                     #myScoreB.scoreList.append(myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd))
                     #scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
                     stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
-                    scoreDict_perGrnd = dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label)
+                    scoreDict_perGrnd.append(dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label))
                     myScoreB.logger.debug('Score-Dict per-Ground: %i' % len(scoreDict_perGrnd))
-                grnd_comp_scores = dict(grnd_truth_lbl=mpcap_grnd.pcapFileName, scoreDict=scoreDict_perGrnd)
-        test_against_grnd_dict = dict(test_cap=mpcap_test.pcapFileName, test_scores=grnd_comp_scores)
+                grnd_comp_scores['grnd_truth_lbl'] = mpcap_grnd.pcapFileName
+                grnd_comp_scores['scoreDict']= scoreDict_perGrnd
+                # Variable below (i.e. grnd_truth_scores_aggr) holds the test scores of a single test_cap against
+                # all the ground_truth caps available
+                grnd_truth_scores_aggr.append(grnd_comp_scores)
+        test_against_grnd_dict.append(dict(test_cap=mpcap_test.pcapFileName, test_scores=grnd_truth_scores_aggr))
 
 
         #myScoreB.testScoreList.append([, ])
 
 #myScoreB.logger.debug("Score Dict Len: %i" % len(myScoreB.scoreDict))
 #myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
+myScoreB.logger.debug("Score List Len: %i" % len(test_against_grnd_dict))
+
+
 
 
 
