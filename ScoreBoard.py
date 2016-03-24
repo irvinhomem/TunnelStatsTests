@@ -2,6 +2,7 @@ from MetaCapLibrary import MetaCapLibrary
 from PacketAnalyzer import PacketAnalyzer
 from PacketDigester import PacketDigester
 
+from terminaltables import AsciiTable
 import logging
 import sys
 
@@ -24,7 +25,10 @@ class ScoreBoard(object):
         self.grndTruthLib_list = []
         self.testSampleLib_list = []
 
-        self.stats_list = ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff']
+        self.stats_list = ['Pearson']
+        # ['Pearson','MeanDiff']
+        # ['SpearmanR','Pearson','MeanDiff']
+        # ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff']
         #self.scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
         self.testScoreList = []
 
@@ -162,6 +166,66 @@ for sample_lib in myScoreB.testSampleLib_list:
 #myScoreB.logger.debug("Score Dict Len: %i" % len(myScoreB.scoreDict))
 #myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
 myScoreB.logger.debug("Score List Len: %i" % len(test_against_grnd_dict))
+
+print("Test item (row) 1: ", test_against_grnd_dict[0]['test_cap'])
+print("Ground Truth (Col) 1: ", test_against_grnd_dict[0]['test_scores'][0]['grnd_truth_lbl'])
+print("Ground Truth (Col) 2: ", test_against_grnd_dict[1]['test_scores'][3]['grnd_truth_lbl'])
+print("Test Group 1 score stat 1: ", test_against_grnd_dict[0]['test_scores'][0]['scoreDict'][0]['stat_measure'])
+print("Test Group 1 stat 1 score: ", test_against_grnd_dict[0]['test_scores'][0]['scoreDict'][0]['av_score'])
+
+
+table_data = []
+header_row = []
+header_row.append('')
+
+for idx_r, row in enumerate(test_against_grnd_dict):
+    for idx_c, col in enumerate(row['test_scores']):
+        grnd_truth_lbl = row['test_scores'][idx_c]['grnd_truth_lbl']
+        print('out: ',grnd_truth_lbl)
+        if grnd_truth_lbl not in header_row:
+            print('in: ', grnd_truth_lbl)
+            header_row.append(grnd_truth_lbl)
+
+print("Header Row Len : ", len(header_row))
+
+
+myTable = AsciiTable(table_data)
+myTable.inner_row_border = True
+print(myTable.table)
+
+
+#table_data = []
+#table_data = [[]] # <------
+#table_data.append([])
+#table_data[0].append('')
+#table_data[0].append([''])
+#indiv_rows = [[]]
+#indiv_rows[0].append([''])
+# indiv_cols = []
+# indiv_cols.append('')
+#for idx_r, row in enumerate(test_against_grnd_dict): #<---
+#    table_data.append([str(row['test_cap'])])   # <-----
+    #for idx_c, cols in enumerate(row['test_scores']):
+    #    table_data.append([str(row['test_scores'][idx_c]['grnd_truth_lbl'])])
+
+
+
+    #table_data[0].append([str(row['test_cap'])])
+    #table_data[idx+1].append(str(row['test_cap']))
+
+    #indiv_rows[0] = str(row['test_cap'])
+    #indiv_rows.append(str(row['test_cap']))
+    #indiv_rows[0] = str(row['test_cap'])
+    # for cols in row['test_scores']:
+    #     indiv_rows.append(str(row['test_cap']))
+    # #     indiv_cols.append(str(cols['grnd_truth_lbl']))
+
+
+    #table_data.append(indiv_rows)
+
+# myTable = AsciiTable(table_data)
+# myTable.inner_row_border = True
+# print(myTable.table)
 
 
 
