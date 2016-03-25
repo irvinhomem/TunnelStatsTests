@@ -115,15 +115,15 @@ class ScoreBoard(object):
 
 class TestScores(object):
 
-    def __init__(self):
-        self.test_sample_pcap_name = ''
-        self.ground_truth_aggregate_scores = []
+    def __init__(self, test_sample_name, all_ground_truth_scores_list):
+        self.test_sample_pcap_name = test_sample_name
+        self.ground_truth_aggregate_scores = all_ground_truth_scores_list
 
 class SingleGroundTruthScores(object):
 
     def __init__(self, ground_truth_lbl, list_of_StatScores):
-        self.ground_truth_label = ''
-        self.stat_scores = []
+        self.ground_truth_label = ground_truth_lbl
+        self.stat_scores = list_of_StatScores
 
 class StatScore(object):
 
@@ -142,6 +142,7 @@ myScoreB.load_test_sample_pcaps()
 test_against_grnd_dict = []
 grnd_comp_scores = dict(grnd_truth_lbl='', scoreDict={})
 grnd_truth_scores_aggr = []
+all_scores =[]
 # Generally: Pick a specific test-PCAP file and compare it against the Ground Truth Base files / Statistics
 for sample_lib in myScoreB.testSampleLib_list:
     # There are 2 test sample libs at the moment: FTP and HTTP (Containing both 'plain' and 'over DNS')
@@ -150,31 +151,38 @@ for sample_lib in myScoreB.testSampleLib_list:
         # Get a particular MetaPacketCap test sample
         myScoreB.logger.debug('===== Current Test MCap: %s ==============' % mpcap_test.pcapFilePath)
         #newTestScore = TestScores()
-
+        all_ground_truth_scores = []
         for grnd_lib in myScoreB.grndTruthLib_list:
             # There are 2 Ground Truth libs at the moment (FTP and HTTP) corresponding to the test sample libs
             myScoreB.logger.debug('In Grnd Lib: %s' % grnd_lib.capbase.get_base_loc())
             for mpcap_grnd in grnd_lib.get_packet_library():
                 # Get a particular ground truth MetaPacket cap to test against the given MetaPacketCap test sample
                 myScoreB.logger.debug('---------- Current Ground Truth MCap:: %s ----------' % mpcap_grnd.pcapFileName)
-                scoreDict_perGrnd = []
+                scorelist_perGrnd = []
+                score_set_perGrnd = []
                 for stat in myScoreB.getStats_list():
                     myScoreB.logger.debug('--------------- Calculating Stat:: %s ----------' % stat)
                     #myScoreB.scoreDict = myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd)
                     #myScoreB.scoreList.append(myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd))
                     #scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
                     stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
-                    scoreDict_perGrnd.append(dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label))
+                    scorelist_perGrnd.append(dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label))
+                    currStat_score =  StatScore(stat_name, stat_score, grnd_label)
+                    score_set_perGrnd.append(currStat_score)
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
-                    myScoreB.logger.debug('Stats Score-Dict Len per-Ground: %i' % len(scoreDict_perGrnd))
+                    myScoreB.logger.debug('Stats Score-Dict Len per-Ground: %i' % len(scorelist_perGrnd))
+                one_ground_truth_scores = SingleGroundTruthScores(mpcap_grnd.pcapFileName, score_set_perGrnd)
+                all_ground_truth_scores.append(one_ground_truth_scores)
                 grnd_comp_scores['grnd_truth_lbl'] = mpcap_grnd.pcapFileName
-                grnd_comp_scores['scoreDict']= scoreDict_perGrnd
+                grnd_comp_scores['scoreDict']= scorelist_perGrnd
                 myScoreB.logger.debug('Ground Truth Label being stored: %s' % grnd_comp_scores['grnd_truth_lbl'])
                 # Variable below (i.e. grnd_truth_scores_aggr) holds the test scores of a single test_cap against
                 # all the ground_truth caps available
                 grnd_truth_scores_aggr.append(grnd_comp_scores)
                 myScoreB.logger.debug('Per TestCap tests against all ground truth curr len: %i' % len(grnd_comp_scores))
+        test_cap_and_all_scores = TestScores(mpcap_test.pcapFileName, all_ground_truth_scores)
+        all_scores.append(test_cap_and_all_scores)
         test_against_grnd_dict.append(dict(test_cap=mpcap_test.pcapFileName, test_scores=grnd_truth_scores_aggr))
 
 
@@ -183,14 +191,18 @@ for sample_lib in myScoreB.testSampleLib_list:
 #myScoreB.logger.debug("Score Dict Len: %i" % len(myScoreB.scoreDict))
 #myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
 myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(test_against_grnd_dict))
+myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(all_scores))
 
 print("Test item (row) 1: ", test_against_grnd_dict[0]['test_cap'])
 print("Test item (row) 1: ", test_against_grnd_dict[1]['test_cap'])
+print("Test item (row) 1: ", all_scores[0].test_sample_pcap_name)
 
 myScoreB.logger.debug("No. of Ground Truths: %i" % len(test_against_grnd_dict[0]['test_scores']))
 print("Ground Truth (Col) 1: ", test_against_grnd_dict[0]['test_scores'][0]['grnd_truth_lbl'])
 print("Ground Truth (Col) 2: ", test_against_grnd_dict[1]['test_scores'][2]['grnd_truth_lbl'])
 print("Ground Truth (Col) 2: ", test_against_grnd_dict[1]['test_scores'][3]['grnd_truth_lbl'])
+print("Ground Truth (Col) 1: ", all_scores[0].ground_truth_aggregate_scores[0].ground_truth_label)
+print("Ground Truth (Col) 2: ", all_scores[0].ground_truth_aggregate_scores[1].ground_truth_label)
 
 myScoreB.logger.debug("No. of Stats Tests per Test+Ground Truth Pair: %i" % len(test_against_grnd_dict[0]['test_scores'][0]['scoreDict']))
 print("Test Group 1 score stat 1: ", test_against_grnd_dict[0]['test_scores'][0]['scoreDict'][0]['stat_measure'])
@@ -198,24 +210,29 @@ print("Test Group 1 stat 1 score: ", test_against_grnd_dict[0]['test_scores'][0]
 print("Test Group 2 score stat 1: ", test_against_grnd_dict[0]['test_scores'][1]['scoreDict'][0]['stat_measure'])
 print("Test Group 2 stat 1 score: ", test_against_grnd_dict[0]['test_scores'][1]['scoreDict'][0]['av_score'])
 
+print("Test Group 1 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].stat_name)
+print("Test Group 1 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].score)
+print("Test Group 2 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].stat_name)
+print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].score)
+
 
 table_data = []
 header_row = []
 header_row.append('')
 
-for idx_r, l0_row in enumerate(test_against_grnd_dict):
-    myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, l0_row['test_cap']))
-    myScoreB.logger.debug('LO_row[test_scores]: %s ' % str(type(l0_row['test_scores'])))
-    for idx_c, l1_col in enumerate(l0_row['test_scores']):
-        myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s'
-                              % (idx_r, l0_row['test_cap'], idx_c, l0_row['test_scores'][idx_c]['grnd_truth_lbl']))
-        grnd_truth_lbl = l0_row['test_scores'][idx_c]['grnd_truth_lbl']
-        print('out: ',grnd_truth_lbl)
-        if grnd_truth_lbl not in header_row:
-            print('in: ', grnd_truth_lbl)
-            header_row.append(grnd_truth_lbl)
-
-print("Header Row Len : ", len(header_row))
+# for idx_r, l0_row in enumerate(test_against_grnd_dict):
+#     myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, l0_row['test_cap']))
+#     myScoreB.logger.debug('LO_row[test_scores]: %s ' % str(type(l0_row['test_scores'])))
+#     for idx_c, l1_col in enumerate(l0_row['test_scores']):
+#         myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s'
+#                               % (idx_r, l0_row['test_cap'], idx_c, l0_row['test_scores'][idx_c]['grnd_truth_lbl']))
+#         grnd_truth_lbl = l0_row['test_scores'][idx_c]['grnd_truth_lbl']
+#         print('out: ',grnd_truth_lbl)
+#         if grnd_truth_lbl not in header_row:
+#             print('in: ', grnd_truth_lbl)
+#             header_row.append(grnd_truth_lbl)
+#
+# print("Header Row Len : ", len(header_row))
 
 
 myTable = AsciiTable(table_data)
