@@ -159,7 +159,6 @@ for sample_lib in myScoreB.testSampleLib_list:
             for mpcap_grnd in grnd_lib.get_packet_library():
                 # Get a particular ground truth MetaPacket cap to test against the given MetaPacketCap test sample
                 myScoreB.logger.debug('---------- Current Ground Truth MCap:: %s ----------' % mpcap_grnd.pcapFileName)
-                #scorelist_perGrnd = []
                 score_set_perGrnd = []
                 for stat in myScoreB.getStats_list():
                     myScoreB.logger.debug('--------------- Calculating Stat:: %s ----------' % stat)
@@ -173,16 +172,12 @@ for sample_lib in myScoreB.testSampleLib_list:
 
                 one_ground_truth_scores = SingleGroundTruthScores(mpcap_grnd.pcapFileName, score_set_perGrnd)
                 all_ground_truth_scores.append(one_ground_truth_scores)
-                #grnd_comp_scores['grnd_truth_lbl'] = mpcap_grnd.pcapFileName
-                #grnd_comp_scores['scoreDict']= scorelist_perGrnd
                 myScoreB.logger.debug('Ground Truth Label being stored: %s' % one_ground_truth_scores.ground_truth_label)
-                # Variable below (i.e. grnd_truth_scores_aggr) holds the test scores of a single test_cap against
+                # Variable below (i.e. test_cap_and_all_scores) holds the test scores of a single test_cap against
                 # all the ground_truth caps available
-                #grnd_truth_scores_aggr.append(grnd_comp_scores)
                 myScoreB.logger.debug('Per TestCap tests against all ground truth curr len: %i' % len(all_ground_truth_scores))
         test_cap_and_all_scores = TestScores(mpcap_test.pcapFileName, all_ground_truth_scores)
         all_scores.append(test_cap_and_all_scores)
-
 
 myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(all_scores))
 
