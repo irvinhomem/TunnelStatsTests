@@ -182,32 +182,18 @@ for sample_lib in myScoreB.testSampleLib_list:
                 myScoreB.logger.debug('Per TestCap tests against all ground truth curr len: %i' % len(all_ground_truth_scores))
         test_cap_and_all_scores = TestScores(mpcap_test.pcapFileName, all_ground_truth_scores)
         all_scores.append(test_cap_and_all_scores)
-        #test_against_grnd_dict.append(dict(test_cap=mpcap_test.pcapFileName, test_scores=grnd_truth_scores_aggr))
 
 
-        #myScoreB.testScoreList.append([, ])
-
-#myScoreB.logger.debug("Score Dict Len: %i" % len(myScoreB.scoreDict))
-#myScoreB.logger.debug("Score List Len: %i" % len(myScoreB.scoreList))
-#myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(test_against_grnd_dict))
 myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(all_scores))
 
-# print("Test item (row) 1: ", test_against_grnd_dict[0]['test_cap'])
-# print("Test item (row) 1: ", test_against_grnd_dict[1]['test_cap'])
 print("Test item (row) 1: ", all_scores[0].test_sample_pcap_name)
 
 myScoreB.logger.debug("No. of Ground Truths: %i" % len(all_scores[0].ground_truth_aggregate_scores))
-# print("Ground Truth (Col) 1: ", test_against_grnd_dict[0]['test_scores'][0]['grnd_truth_lbl'])
-# print("Ground Truth (Col) 2: ", test_against_grnd_dict[1]['test_scores'][2]['grnd_truth_lbl'])
-# print("Ground Truth (Col) 2: ", test_against_grnd_dict[1]['test_scores'][3]['grnd_truth_lbl'])
+
 print("Ground Truth (Col) 1: ", all_scores[0].ground_truth_aggregate_scores[0].ground_truth_label)
 print("Ground Truth (Col) 2: ", all_scores[0].ground_truth_aggregate_scores[1].ground_truth_label)
 
 myScoreB.logger.debug("No. of Stats Tests per Test+Ground Truth Pair: %i" % len(all_scores[0].ground_truth_aggregate_scores[0].stat_scores))
-# print("Test Group 1 score stat 1: ", test_against_grnd_dict[0]['test_scores'][0]['scoreDict'][0]['stat_measure'])
-# print("Test Group 1 stat 1 score: ", test_against_grnd_dict[0]['test_scores'][0]['scoreDict'][0]['av_score'])
-# print("Test Group 2 score stat 1: ", test_against_grnd_dict[0]['test_scores'][1]['scoreDict'][0]['stat_measure'])
-# print("Test Group 2 stat 1 score: ", test_against_grnd_dict[0]['test_scores'][1]['scoreDict'][0]['av_score'])
 
 print("Test Group 1 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].stat_name)
 print("Test Group 1 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].score)
@@ -218,7 +204,6 @@ print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores
 table_data = []
 header_row = []
 header_row.append('')
-#single_row = []
 
 for idx_r, row in enumerate(all_scores):
     myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row.test_sample_pcap_name))
@@ -236,7 +221,6 @@ for idx_r, row in enumerate(all_scores):
                               % (idx_r, row.test_sample_pcap_name, idx_c, col.ground_truth_label,
                                  idx_3, dim3.stat_name, dim3.score))
             score_string += str(dim3.stat_name + ' : ' + str(dim3.score) + '\n')
-            #score_string = '\n'.join()
             myScoreB.logger.debug('Score String: %s' % score_string.replace('\n', ':::'))
         single_row.append(score_string)
         myScoreB.logger.debug('Current Length of Row: %i' % len(single_row))
@@ -251,42 +235,5 @@ table_data.append(header_row)
 myTable = AsciiTable(table_data)
 myTable.inner_row_border = True
 print(myTable.table)
-
-
-#table_data = []
-#table_data = [[]] # <------
-#table_data.append([])
-#table_data[0].append('')
-#table_data[0].append([''])
-#indiv_rows = [[]]
-#indiv_rows[0].append([''])
-# indiv_cols = []
-# indiv_cols.append('')
-#for idx_r, row in enumerate(test_against_grnd_dict): #<---
-#    table_data.append([str(row['test_cap'])])   # <-----
-    #for idx_c, cols in enumerate(row['test_scores']):
-    #    table_data.append([str(row['test_scores'][idx_c]['grnd_truth_lbl'])])
-
-
-
-    #table_data[0].append([str(row['test_cap'])])
-    #table_data[idx+1].append(str(row['test_cap']))
-
-    #indiv_rows[0] = str(row['test_cap'])
-    #indiv_rows.append(str(row['test_cap']))
-    #indiv_rows[0] = str(row['test_cap'])
-    # for cols in row['test_scores']:
-    #     indiv_rows.append(str(row['test_cap']))
-    # #     indiv_cols.append(str(cols['grnd_truth_lbl']))
-
-
-    #table_data.append(indiv_rows)
-
-# myTable = AsciiTable(table_data)
-# myTable.inner_row_border = True
-# print(myTable.table)
-
-
-
 
 
