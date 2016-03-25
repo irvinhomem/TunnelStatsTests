@@ -25,7 +25,8 @@ class ScoreBoard(object):
         self.grndTruthLib_list = []
         self.testSampleLib_list = []
 
-        self.stats_list = ['Pearson']
+        self.stats_list = ['Pearson','MeanDiff']
+        # ['Pearson']
         # ['Pearson','MeanDiff']
         # ['SpearmanR','Pearson','MeanDiff']
         # ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff']
@@ -162,16 +163,14 @@ for sample_lib in myScoreB.testSampleLib_list:
                 score_set_perGrnd = []
                 for stat in myScoreB.getStats_list():
                     myScoreB.logger.debug('--------------- Calculating Stat:: %s ----------' % stat)
-                    #myScoreB.scoreDict = myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd)
-                    #myScoreB.scoreList.append(myScoreB.calcAvgStatScores(stat, mcap_test, mcap_grnd))
-                    #scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
                     stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
-                    #scorelist_perGrnd.append(dict(stat_measure=stat_name, av_score=stat_score, grndLabel=grnd_label))
                     currStat_score =  StatScore(stat_name, stat_score, grnd_label)
                     score_set_perGrnd.append(currStat_score)
+
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
                     myScoreB.logger.debug('Stats Score-Set Len per-Ground: %i' % len(score_set_perGrnd))
+
                 one_ground_truth_scores = SingleGroundTruthScores(mpcap_grnd.pcapFileName, score_set_perGrnd)
                 all_ground_truth_scores.append(one_ground_truth_scores)
                 #grnd_comp_scores['grnd_truth_lbl'] = mpcap_grnd.pcapFileName
@@ -219,20 +218,35 @@ print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores
 table_data = []
 header_row = []
 header_row.append('')
+#single_row = []
 
 for idx_r, row in enumerate(all_scores):
     myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row.test_sample_pcap_name))
+    single_row = []
+    single_row.append(row.test_sample_pcap_name)
     for idx_c, col in enumerate(row.ground_truth_aggregate_scores):
         myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s'
                               % (idx_r, row.test_sample_pcap_name, idx_c, col.ground_truth_label))
-#         grnd_truth_lbl = l0_row['test_scores'][idx_c]['grnd_truth_lbl']
-#         print('out: ',grnd_truth_lbl)
-#         if grnd_truth_lbl not in header_row:
-#             print('in: ', grnd_truth_lbl)
-#             header_row.append(grnd_truth_lbl)
-#
-# print("Header Row Len : ", len(header_row))
+        if col.ground_truth_label not in header_row:
+            header_row.append(col.ground_truth_label)
+        score_string = ''
+        for idx_3, dim3 in enumerate(col.stat_scores):
+            myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s ::'
+                                  ' Stat: %i :: %s : %10.7f'
+                              % (idx_r, row.test_sample_pcap_name, idx_c, col.ground_truth_label,
+                                 idx_3, dim3.stat_name, dim3.score))
+            score_string += str(dim3.stat_name + ' : ' + str(dim3.score) + '\n')
+            #score_string = '\n'.join()
+            myScoreB.logger.debug('Score String: %s' % score_string.replace('\n', ':::'))
+        single_row.append(score_string)
+        myScoreB.logger.debug('Current Length of Row: %i' % len(single_row))
+        myScoreB.logger.debug('Row item 1: %s' % single_row[0])
+        myScoreB.logger.debug('Row item 2: %s' % single_row[1])
+    table_data.append(single_row)
 
+myScoreB.logger.debug("Header Row Len : %i" % len(header_row))
+
+table_data.append(header_row)
 
 myTable = AsciiTable(table_data)
 myTable.inner_row_border = True
