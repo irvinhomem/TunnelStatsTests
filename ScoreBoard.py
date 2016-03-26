@@ -114,6 +114,34 @@ class ScoreBoard(object):
         # return avg_score_to_HTTP, avg_score_to_FTP
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
+    def aggregate_scores(self, stat_score_obj):
+        #all_stat_names = self.stats_list
+        # if stat_name not in all_stat_names:
+        #     all_stat_names.append(stat_name)
+
+        httpAgg_score = []
+        ftpAgg_score = []
+        for single_stat in self.stats_list:
+            if single_stat == stat_score_obj.stat_name:
+                if 'http' in stat_score_obj.ground_label:
+                    httpAgg_score.append(stat_score_obj)
+                    #AggregateScorePerGroundClass(stat_name,grndLabel)
+                elif 'ftp' in stat_score_obj.ground_label:
+                    ftpAgg_score.append(stat_score_obj)
+
+        all_stat_names = []
+
+        all_stat_scores = []
+        stat_score = StatScore(statName, score, grndLabel)
+        for score_item in all_stat_scores:
+            if stat_score.stat_name not in score_item.stat_name:
+                all_stat_scores.append(stat_score)
+
+            all_stat_scores.append(stat_name)
+
+
+        return stat_measure_name, avg_score_to_HTTP, avg_score_to_FTP
+
 class TestScores(object):
 
     def __init__(self, test_sample_name, all_ground_truth_scores_list):
@@ -133,6 +161,36 @@ class StatScore(object):
         self.score = statScore
         self.ground_label = grndLbl
 
+class AggregatePredictor(object):
+
+    def __init__(self, statName, statScore, testCap_name):
+        self.stat_name = statName
+        self.stat_score = statScore
+        self.
+
+class AggregateScorePerGroundClass(object):
+
+    # def __init__(self, stat_name, ground_class_lbl, test_scorelist):
+    #     self.statslist = []
+    #     self.ground_class_label = ground_class_lbl
+    #     self.test_score_list = test_scorelist
+    #
+    #     if stat_name not in self.statslist:
+    #         self.statslist.append(stat_name)
+
+    def __init__(self, stat_score_obj):
+        self.httpAgg_score = []
+        self.ftpAgg_score = []
+        for single_stat in self.stats_list:
+            if single_stat == stat_score_obj.stat_name:
+                if 'http' in stat_score_obj.ground_label:
+                    self.httpAgg_score.append(stat_score_obj)
+                    #AggregateScorePerGroundClass(stat_name,grndLabel)
+                elif 'ftp' in stat_score_obj.ground_label:
+                    self.ftpAgg_score.append(stat_score_obj)
+
+
+
 myScoreB = ScoreBoard()
 
 # Load GroundTruth library / base (Filtered)
@@ -140,9 +198,7 @@ myScoreB.load_ground_truths()
 
 # Load Test-PCAP library / base (Filtered)
 myScoreB.load_test_sample_pcaps()
-#test_against_grnd_dict = []
-#grnd_comp_scores = dict(grnd_truth_lbl='', scoreDict={})
-#grnd_truth_scores_aggr = []
+
 all_scores =[]
 # Generally: Pick a specific test-PCAP file and compare it against the Ground Truth Base files / Statistics
 for sample_lib in myScoreB.testSampleLib_list:
@@ -165,6 +221,9 @@ for sample_lib in myScoreB.testSampleLib_list:
                     stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
                     currStat_score =  StatScore(stat_name, stat_score, grnd_label)
                     score_set_perGrnd.append(currStat_score)
+
+                    #single_ground_scores = AggregateScorePerGroundClass(currStat_score)
+                    myScoreB.aggregate_scores(currStat_score)
 
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
@@ -200,20 +259,20 @@ table_data = []
 header_row = []
 header_row.append('')
 
-for idx_r, row in enumerate(all_scores):
-    myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row.test_sample_pcap_name))
+for idx_r, row_test_cap in enumerate(all_scores):
+    myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row_test_cap.test_sample_pcap_name))
     single_row = []
-    single_row.append(row.test_sample_pcap_name)
-    for idx_c, col in enumerate(row.ground_truth_aggregate_scores):
+    single_row.append(row_test_cap.test_sample_pcap_name)
+    for idx_c, col_grnd in enumerate(row_test_cap.ground_truth_aggregate_scores):
         myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s'
-                              % (idx_r, row.test_sample_pcap_name, idx_c, col.ground_truth_label))
-        if col.ground_truth_label not in header_row:
-            header_row.append(col.ground_truth_label)
+                              % (idx_r, row_test_cap.test_sample_pcap_name, idx_c, col_grnd.ground_truth_label))
+        if col_grnd.ground_truth_label not in header_row:
+            header_row.append(col_grnd.ground_truth_label)
         score_string = ''
-        for idx_3, dim3 in enumerate(col.stat_scores):
+        for idx_3, dim3 in enumerate(col_grnd.stat_scores):
             myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s ::'
                                   ' Stat: %i :: %s : %10.7f'
-                              % (idx_r, row.test_sample_pcap_name, idx_c, col.ground_truth_label,
+                              % (idx_r, row_test_cap.test_sample_pcap_name, idx_c, col_grnd.ground_truth_label,
                                  idx_3, dim3.stat_name, dim3.score))
             score_string += str(dim3.stat_name + ' : ' + str(dim3.score) + '\n')
             myScoreB.logger.debug('Score String: %s' % score_string.replace('\n', ':::'))
@@ -231,4 +290,4 @@ myTable = AsciiTable(table_data)
 myTable.inner_row_border = True
 print(myTable.table)
 
-
+######################################################################
