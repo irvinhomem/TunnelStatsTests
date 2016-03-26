@@ -96,51 +96,15 @@ class ScoreBoard(object):
             self.logger.warning("Something wrong with protocol label ...")
             sys.exit('Something wrong with protocol label ...')
 
-        # # Score against ** HTTP **
-        # avg_score_to_HTTP, score_vals = pktAnlyzr.calcStatMeasureAvg(
-        #     stat_measure_name,
-        #     pktDgstr.getPopulationLists("HTTP",
-        #         test_cap.getDnsReqDataEntropy_upstream(),   # getDnsPktEntropy
-        #         grndtruth_cap.getHttpReqEntropy()),    # httpMcap.get_ip_pkt_http_req_entropy()    # getHttpReqEntropy     # getCompressedHttpReqEntropy
-        #     1000)
-        #
-        # # Score against ** FTP **
-        # avg_score_to_FTP, score_vals = pktAnlyzr.calcStatMeasureAvg(
-        #     stat_measure_name,
-        #     pktDgstr.getPopulationLists("FTP",
-        #         test_cap.getDnsReqDataEntropy_upstream(),       #getDnsPktEntropy
-        #         grndtruth_cap.getFtpReqEntropy()),
-        #     1000)
-        # return avg_score_to_HTTP, avg_score_to_FTP
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
-    def aggregate_scores(self, all_test_scores):
-        #for test_cap in all_test_scores:
+    def aggregateStatScores(self, grndLbl, statName, stat_score):
+        for idx, stat_name in enumerate(self.stats_list):
+            if stat_name  == statName:
+                scoreList = []
+                scoreList.append(stat_score)
+                single_stat_class_avg = StatClassAverage(grndLbl, stat_name)
 
-
-        # httpAgg_score = []
-        # ftpAgg_score = []
-        # for single_stat in self.stats_list:
-        #     if single_stat == stat_score_obj.stat_name:
-        #         if 'http' in stat_score_obj.ground_label:
-        #             httpAgg_score.append(stat_score_obj)
-        #             #AggregateScorePerGroundClass(stat_name,grndLabel)
-        #         elif 'ftp' in stat_score_obj.ground_label:
-        #             ftpAgg_score.append(stat_score_obj)
-        #
-        # all_stat_names = []
-        #
-        # all_stat_scores = []
-        # stat_score = StatScore(statName, score, grndLabel)
-        # for score_item in all_stat_scores:
-        #     if stat_score.stat_name not in score_item.stat_name:
-        #         all_stat_scores.append(stat_score)
-        #
-        #     all_stat_scores.append(stat_name)
-        #
-        #
-        # return stat_measure_name, avg_score_to_HTTP, avg_score_to_FTP
-        return
 
 class TestScores(object):
 
@@ -161,41 +125,31 @@ class StatScore(object):
         self.score = statScore
         self.ground_label = grndLbl
 
-class AggregatePredictor(object):
+class TestCapStats(object):
 
-    def __init__(self, statName, statScore, testCap_name):
-        self.stat_name = statName
-        self.stat_score = statScore
-        #self.
+    def __init__(self, testCapName, avStatList):
+        self.test_cap_name = testCapName
+        self.av_stat_list = avStatList
 
-class AggregateScorePerGroundClass(object):
+class StatClassAverage(object):
 
-    # def __init__(self, stat_name, ground_class_lbl, test_scorelist):
-    #     self.statslist = []
-    #     self.ground_class_label = ground_class_lbl
-    #     self.test_score_list = test_scorelist
-    #
-    #     if stat_name not in self.statslist:
-    #         self.statslist.append(stat_name)
+    def __init__(self, groundLbl, statName, scoreList, statsList):
+        groundClassLbl = ''
+        if 'http' in groundLbl:
+            groundClassLbl = 'http'
+        elif 'ftp' in groundLbl:
+            groundClassLbl = 'ftp'
 
-    def __init__(self, stat_score_obj):
-        self.httpAgg_score = []
-        self.ftpAgg_score = []
-        for single_stat in self.stats_list:
-            if single_stat == stat_score_obj.stat_name:
-                if 'http' in stat_score_obj.ground_label:
-                    self.httpAgg_score.append(stat_score_obj)
-                    #AggregateScorePerGroundClass(stat_name,grndLabel)
-                elif 'ftp' in stat_score_obj.ground_label:
-                    self.ftpAgg_score.append(stat_score_obj)
+        self.ground_class_name = groundClassLbl
 
-
+        if stat_name in enumerate(statsList)
+        self.stat_name
+        self.score_list
 
 myScoreB = ScoreBoard()
 
 # Load GroundTruth library / base (Filtered)
 myScoreB.load_ground_truths()
-
 # Load Test-PCAP library / base (Filtered)
 myScoreB.load_test_sample_pcaps()
 
@@ -221,9 +175,8 @@ for sample_lib in myScoreB.testSampleLib_list:
                     stat_name, stat_score, grnd_label = myScoreB.calcAvgStatScores(stat, mpcap_test, mpcap_grnd)
                     currStat_score =  StatScore(stat_name, stat_score, grnd_label)
                     score_set_perGrnd.append(currStat_score)
-
-                    #single_ground_scores = AggregateScorePerGroundClass(currStat_score)
-                    #myScoreB.aggregate_scores(currStat_score)
+                    #single_stat_class_avg = StatClassAverage(mpcap_grnd.pcapFileName, stat_name)
+                    myScoreB.aggregateStatScores(mpcap_grnd.pcapFileName, stat_name, stat_score)
 
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
@@ -235,6 +188,7 @@ for sample_lib in myScoreB.testSampleLib_list:
                 # Variable below (i.e. test_cap_and_all_scores) holds the test scores of a single test_cap against
                 # all the ground_truth caps available
                 myScoreB.logger.debug('Per TestCap tests against all ground truth curr len: %i' % len(all_ground_truth_scores))
+        test_cap_all_grnd_class_scores = TestCapStats(mpcap_test.pcapFileName, )
         test_cap_and_all_scores = TestScores(mpcap_test.pcapFileName, all_ground_truth_scores)
         all_scores.append(test_cap_and_all_scores)
 
@@ -252,16 +206,35 @@ print("Test Group 2 score stat 1: ", all_scores[0].ground_truth_aggregate_scores
 print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].score)
 
 myScoreB.logger.debug('*******************************************************************')
+
 ##############################################################
+all_aggregated_scores = []
+single_stat_score_list = []
 for single_testcap in all_scores:
-    myScoreB.logger.debug('Individual test pcaps : %s' % single_testcap.test_sample_pcap_name)
-    for single_grndcap in single_testcap.ground_truth_aggregate_scores:
-        myScoreB.logger.debug('Ground Truth pcaps : %s' % single_grndcap.ground_truth_label)
-        ground_class_stat_agg = []
-        for curr_stat in myScoreB.stats_list:
-            for curr_stat_score in single_grndcap.stat_scores:
-                if curr_stat == currStat_score.stat_name:
-                    ground_class_stat_agg.append(curr_stat_score)
+    myScoreB.logger.debug('----- Current test PCap : %s -------------------' % single_testcap.test_sample_pcap_name)
+    #single_testcap_stat_scores = []
+    for single_stat in myScoreB.stats_list:
+        myScoreB.logger.debug('---------- Current Stat being Aggregated : %s ------------------' % single_stat)
+        single_stat_score_list.clear() ## <-- Check
+        for single_grndcap in single_testcap.ground_truth_aggregate_scores:
+            myScoreB.logger.debug('--------------- Current Ground Truth Pcap : %s ------------------' % single_grndcap.ground_truth_label)
+            for curr_stat_res in single_grndcap.stat_scores:
+                if single_stat == curr_stat_res.stat_name:
+                    myScoreB.logger.debug('------------------- Stored Stat: %s -----------' % curr_stat_res.stat_name)
+                    single_stat_score_list.append(curr_stat_res)
+                    myScoreB.logger.debug('Single stat score list curr length: ' % len(single_stat_score_list))
+    single_testcap_stat_scores = TestCapStats(single_testcap.test_sample_pcap_name, single_stat_score_list)
+    all_aggregated_scores.append(single_testcap_stat_scores)
+
+        #     if single_grndcap.stat_scores
+        #
+        #
+        #     ground_class_stat_agg = []
+        #
+        # for curr_stat_res in myScoreB.stats_list:
+        #     for curr_stat_score in single_grndcap.stat_scores:
+        #         if curr_stat_res == currStat_score.stat_name:
+        #             ground_class_stat_agg.append(curr_stat_score)
 
 
 
