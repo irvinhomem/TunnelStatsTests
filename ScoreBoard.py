@@ -114,33 +114,33 @@ class ScoreBoard(object):
         # return avg_score_to_HTTP, avg_score_to_FTP
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
-    def aggregate_scores(self, stat_score_obj):
-        #all_stat_names = self.stats_list
-        # if stat_name not in all_stat_names:
-        #     all_stat_names.append(stat_name)
-
-        httpAgg_score = []
-        ftpAgg_score = []
-        for single_stat in self.stats_list:
-            if single_stat == stat_score_obj.stat_name:
-                if 'http' in stat_score_obj.ground_label:
-                    httpAgg_score.append(stat_score_obj)
-                    #AggregateScorePerGroundClass(stat_name,grndLabel)
-                elif 'ftp' in stat_score_obj.ground_label:
-                    ftpAgg_score.append(stat_score_obj)
-
-        all_stat_names = []
-
-        all_stat_scores = []
-        stat_score = StatScore(statName, score, grndLabel)
-        for score_item in all_stat_scores:
-            if stat_score.stat_name not in score_item.stat_name:
-                all_stat_scores.append(stat_score)
-
-            all_stat_scores.append(stat_name)
+    def aggregate_scores(self, all_test_scores):
+        #for test_cap in all_test_scores:
 
 
-        return stat_measure_name, avg_score_to_HTTP, avg_score_to_FTP
+        # httpAgg_score = []
+        # ftpAgg_score = []
+        # for single_stat in self.stats_list:
+        #     if single_stat == stat_score_obj.stat_name:
+        #         if 'http' in stat_score_obj.ground_label:
+        #             httpAgg_score.append(stat_score_obj)
+        #             #AggregateScorePerGroundClass(stat_name,grndLabel)
+        #         elif 'ftp' in stat_score_obj.ground_label:
+        #             ftpAgg_score.append(stat_score_obj)
+        #
+        # all_stat_names = []
+        #
+        # all_stat_scores = []
+        # stat_score = StatScore(statName, score, grndLabel)
+        # for score_item in all_stat_scores:
+        #     if stat_score.stat_name not in score_item.stat_name:
+        #         all_stat_scores.append(stat_score)
+        #
+        #     all_stat_scores.append(stat_name)
+        #
+        #
+        # return stat_measure_name, avg_score_to_HTTP, avg_score_to_FTP
+        return
 
 class TestScores(object):
 
@@ -166,7 +166,7 @@ class AggregatePredictor(object):
     def __init__(self, statName, statScore, testCap_name):
         self.stat_name = statName
         self.stat_score = statScore
-        self.
+        #self.
 
 class AggregateScorePerGroundClass(object):
 
@@ -223,7 +223,7 @@ for sample_lib in myScoreB.testSampleLib_list:
                     score_set_perGrnd.append(currStat_score)
 
                     #single_ground_scores = AggregateScorePerGroundClass(currStat_score)
-                    myScoreB.aggregate_scores(currStat_score)
+                    #myScoreB.aggregate_scores(currStat_score)
 
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
@@ -239,21 +239,35 @@ for sample_lib in myScoreB.testSampleLib_list:
         all_scores.append(test_cap_and_all_scores)
 
 myScoreB.logger.debug("Score List Len || No. of Test Samples: %i" % len(all_scores))
-
 print("Test item (row) 1: ", all_scores[0].test_sample_pcap_name)
 
 myScoreB.logger.debug("No. of Ground Truths: %i" % len(all_scores[0].ground_truth_aggregate_scores))
-
 print("Ground Truth (Col) 1: ", all_scores[0].ground_truth_aggregate_scores[0].ground_truth_label)
 print("Ground Truth (Col) 2: ", all_scores[0].ground_truth_aggregate_scores[1].ground_truth_label)
 
 myScoreB.logger.debug("No. of Stats Tests per Test+Ground Truth Pair: %i" % len(all_scores[0].ground_truth_aggregate_scores[0].stat_scores))
-
 print("Test Group 1 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].stat_name)
 print("Test Group 1 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[0].stat_scores[0].score)
 print("Test Group 2 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].stat_name)
 print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].score)
 
+myScoreB.logger.debug('*******************************************************************')
+##############################################################
+for single_testcap in all_scores:
+    myScoreB.logger.debug('Individual test pcaps : %s' % single_testcap.test_sample_pcap_name)
+    for single_grndcap in single_testcap.ground_truth_aggregate_scores:
+        myScoreB.logger.debug('Ground Truth pcaps : %s' % single_grndcap.ground_truth_label)
+        ground_class_stat_agg = []
+        for curr_stat in myScoreB.stats_list:
+            for curr_stat_score in single_grndcap.stat_scores:
+                if curr_stat == currStat_score.stat_name:
+                    ground_class_stat_agg.append(curr_stat_score)
+
+
+
+
+#myScoreB.aggregate_scores(all_scores)
+######################################################################
 
 table_data = []
 header_row = []
@@ -290,4 +304,4 @@ myTable = AsciiTable(table_data)
 myTable.inner_row_border = True
 print(myTable.table)
 
-######################################################################
+
