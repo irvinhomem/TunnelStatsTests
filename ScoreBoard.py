@@ -98,12 +98,12 @@ class ScoreBoard(object):
 
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
-    def aggregateStatScores(self, grndLbl, statName, stat_score):
-        for idx, stat_name in enumerate(self.stats_list):
-            if stat_name  == statName:
-                scoreList = []
-                scoreList.append(stat_score)
-                single_stat_class_avg = StatClassAverage(grndLbl, stat_name)
+    # def aggregateStatScores(self, grndLbl, statName, stat_score):
+    #     for idx, stat_name in enumerate(self.stats_list):
+    #         if stat_name  == statName:
+    #             scoreList = []
+    #             scoreList.append(stat_score)
+    #             single_stat_class_avg = StatClassAverage(grndLbl, stat_name)
 
 
 class TestScores(object):
@@ -131,20 +131,20 @@ class TestCapStats(object):
         self.test_cap_name = testCapName
         self.av_stat_list = avStatList
 
-class StatClassAverage(object):
-
-    def __init__(self, groundLbl, statName, scoreList, statsList):
-        groundClassLbl = ''
-        if 'http' in groundLbl:
-            groundClassLbl = 'http'
-        elif 'ftp' in groundLbl:
-            groundClassLbl = 'ftp'
-
-        self.ground_class_name = groundClassLbl
-
-        if stat_name in enumerate(statsList)
-        self.stat_name
-        self.score_list
+# class StatClassAverage(object):
+#
+#     def __init__(self, groundLbl, statName, scoreList, statsList):
+#         groundClassLbl = ''
+#         if 'http' in groundLbl:
+#             groundClassLbl = 'http'
+#         elif 'ftp' in groundLbl:
+#             groundClassLbl = 'ftp'
+#
+#         self.ground_class_name = groundClassLbl
+#
+#         if stat_name in enumerate(statsList)
+#         self.stat_name
+#         self.score_list
 
 myScoreB = ScoreBoard()
 
@@ -176,7 +176,7 @@ for sample_lib in myScoreB.testSampleLib_list:
                     currStat_score =  StatScore(stat_name, stat_score, grnd_label)
                     score_set_perGrnd.append(currStat_score)
                     #single_stat_class_avg = StatClassAverage(mpcap_grnd.pcapFileName, stat_name)
-                    myScoreB.aggregateStatScores(mpcap_grnd.pcapFileName, stat_name, stat_score)
+                    #myScoreB.aggregateStatScores(mpcap_grnd.pcapFileName, stat_name, stat_score)
 
                     myScoreB.logger.debug('Stat Name: %s' % stat_name)
                     myScoreB.logger.debug('Stats Score: {0:10.7f}'.format(stat_score))
@@ -188,7 +188,7 @@ for sample_lib in myScoreB.testSampleLib_list:
                 # Variable below (i.e. test_cap_and_all_scores) holds the test scores of a single test_cap against
                 # all the ground_truth caps available
                 myScoreB.logger.debug('Per TestCap tests against all ground truth curr len: %i' % len(all_ground_truth_scores))
-        test_cap_all_grnd_class_scores = TestCapStats(mpcap_test.pcapFileName, )
+        #test_cap_all_grnd_class_scores = TestCapStats(mpcap_test.pcapFileName, )
         test_cap_and_all_scores = TestScores(mpcap_test.pcapFileName, all_ground_truth_scores)
         all_scores.append(test_cap_and_all_scores)
 
@@ -205,13 +205,13 @@ print("Test Group 1 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores
 print("Test Group 2 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].stat_name)
 print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].score)
 
-myScoreB.logger.debug('*******************************************************************')
+myScoreB.logger.debug('******* AGGREGATING SCORES ************************************************************')
 
 ##############################################################
 all_aggregated_scores = []
 single_stat_score_list = []
 for single_testcap in all_scores:
-    myScoreB.logger.debug('----- Current test PCap : %s -------------------' % single_testcap.test_sample_pcap_name)
+    myScoreB.logger.debug('===== Current test PCap ::::: %s ===================' % single_testcap.test_sample_pcap_name)
     #single_testcap_stat_scores = []
     for single_stat in myScoreB.stats_list:
         myScoreB.logger.debug('---------- Current Stat being Aggregated : %s ------------------' % single_stat)
@@ -222,7 +222,7 @@ for single_testcap in all_scores:
                 if single_stat == curr_stat_res.stat_name:
                     myScoreB.logger.debug('------------------- Stored Stat: %s -----------' % curr_stat_res.stat_name)
                     single_stat_score_list.append(curr_stat_res)
-                    myScoreB.logger.debug('Single stat score list curr length: ' % len(single_stat_score_list))
+                    myScoreB.logger.debug('Single stat score list curr length: %i' % len(single_stat_score_list))
     single_testcap_stat_scores = TestCapStats(single_testcap.test_sample_pcap_name, single_stat_score_list)
     all_aggregated_scores.append(single_testcap_stat_scores)
 
@@ -241,7 +241,8 @@ for single_testcap in all_scores:
 
 #myScoreB.aggregate_scores(all_scores)
 ######################################################################
-
+myScoreB.logger.debug('******* DONE AGGREGATING SCORES ************************************************************')
+myScoreB.logger.debug('******* PREPARING TO DRAW TABLE ************************************************************')
 table_data = []
 header_row = []
 header_row.append('')
