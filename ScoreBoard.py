@@ -225,6 +225,7 @@ for single_testcap in all_scores:
                     myScoreB.logger.debug('Single stat score list curr length: %i' % len(single_stat_score_list))
     single_testcap_stat_scores = TestCapStats(single_testcap.test_sample_pcap_name, single_stat_score_list)
     all_aggregated_scores.append(single_testcap_stat_scores)
+    myScoreB.logger.debug('All Test-Cap stat aggegates Len : %i' % len(all_aggregated_scores))
 
         #     if single_grndcap.stat_scores
         #
