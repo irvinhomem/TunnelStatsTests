@@ -130,8 +130,29 @@ class TestCapStats(object):
     def __init__(self, testCapName, aggStatList):
         self.test_cap_name = testCapName
         self.agg_stat_list = aggStatList
-        # self.FTP_score_list =
-        # self.HT
+        self.FTP_score_list = None
+        self.HTTP_score_list = None
+
+    # def attachScoreLists(self, groundClassLbl, scoreList):
+    #     if groundClassLbl == 'ftp':
+    #         self.FTP_score_list = scoreList
+    #     elif groundClassLbl == 'http':
+    #         self.HTTP_score_list = scoreList
+
+class GroundProtocolAggScore(object):
+
+    def __init__(self, groundProto, groundProtocolScoresList):
+        #self.stat_name = stat_name
+        self.ground_proto_class = groundProto
+        self.ground_proto_score_list = groundProtocolScoresList
+
+class SingleProtoAggScore(object):
+
+    def __init__(self):
+        self.stat_name
+        self.HTTP_av_score
+        self.FTP_av_score
+
 
 myScoreB = ScoreBoard()
 
@@ -230,13 +251,24 @@ myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_score
 ######################################################################
 myScoreB.logger.debug('******* STARTING AVERAGING AND PREDICTION **************************************************')
 
-# for single_test_cap_scores in all_aggregated_scores:
-#     myScoreB.logger.debug('===== Current Test Pcap : %s =============================' % single_test_cap_scores.test_cap_name)
-#     av_FTP_score
-#     for stat_scores_agg in single_test_cap_scores.av_stat_list:
-#         if 'http' in stat_scores_agg.ground_label:
-#
-#         elif 'ftp' in stat_scores_agg.ground_label:
+for single_test_cap_scores in all_aggregated_scores:
+    myScoreB.logger.debug('===== Current Test Pcap : %s =============================' % single_test_cap_scores.test_cap_name)
+    for stat_scores_agg in single_test_cap_scores.agg_stat_list:
+        myScoreB.logger.debug('----- Current Stat : %s ---------------------' % stat_scores_agg.stat_name)
+
+    # agg_FTP_scores = []
+    # agg_HTTP_scores = []
+    # ground_proto_scores = []
+    # for stat_scores_agg in single_test_cap_scores.agg_stat_list:
+    #     if 'http' in stat_scores_agg.ground_label:
+    #         agg_HTTP_scores.append(stat_scores_agg)
+    #     elif 'ftp' in stat_scores_agg.ground_label:
+    #         agg_FTP_scores.append(stat_scores_agg)
+    # http_scores = GroundProtocolAggScore('http', agg_HTTP_scores)
+    # ftp_scores = GroundProtocolAggScore('ftp', agg_FTP_scores)
+    # single_test_cap_scores.attach
+    #
+    #     ground_proto_scores.append()
 
 
 
