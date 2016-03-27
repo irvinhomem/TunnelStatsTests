@@ -127,24 +127,11 @@ class StatScore(object):
 
 class TestCapStats(object):
 
-    def __init__(self, testCapName, avStatList):
+    def __init__(self, testCapName, aggStatList):
         self.test_cap_name = testCapName
-        self.av_stat_list = avStatList
-
-# class StatClassAverage(object):
-#
-#     def __init__(self, groundLbl, statName, scoreList, statsList):
-#         groundClassLbl = ''
-#         if 'http' in groundLbl:
-#             groundClassLbl = 'http'
-#         elif 'ftp' in groundLbl:
-#             groundClassLbl = 'ftp'
-#
-#         self.ground_class_name = groundClassLbl
-#
-#         if stat_name in enumerate(statsList)
-#         self.stat_name
-#         self.score_list
+        self.agg_stat_list = aggStatList
+        # self.FTP_score_list =
+        # self.HT
 
 myScoreB = ScoreBoard()
 
@@ -227,26 +214,43 @@ for single_testcap in all_scores:
     all_aggregated_scores.append(single_testcap_stat_scores)
     myScoreB.logger.debug('All Test-Cap stat aggegates Len : %i' % len(all_aggregated_scores))
 
-        #     if single_grndcap.stat_scores
-        #
-        #
-        #     ground_class_stat_agg = []
-        #
-        # for curr_stat_res in myScoreB.stats_list:
-        #     for curr_stat_score in single_grndcap.stat_scores:
-        #         if curr_stat_res == currStat_score.stat_name:
-        #             ground_class_stat_agg.append(curr_stat_score)
-
-
-
-
 #myScoreB.aggregate_scores(all_scores)
+myScoreB.logger.debug('******************* DONE AGGREGATING SCORES **************************************************')
+myScoreB.logger.debug('*** TESTING AGGREGATED SCORES ****************************')
+myScoreB.logger.debug('Aggregated Scores: Test Cap Len: %i' % len(all_aggregated_scores))
+myScoreB.logger.debug('Test Cap 1 name: %s' % all_aggregated_scores[0].test_cap_name)
+myScoreB.logger.debug('Test Cap 2 name: %s' % all_aggregated_scores[1].test_cap_name)
+
+myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[0].agg_stat_list[0].stat_name) #Should be the same
+myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[0].agg_stat_list[0].score)
+myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[0].agg_stat_list[1].stat_name) #Should be the same as above
+myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[0].agg_stat_list[1].score)
+
+
 ######################################################################
-myScoreB.logger.debug('******* DONE AGGREGATING SCORES ************************************************************')
+myScoreB.logger.debug('******* STARTING AVERAGING AND PREDICTION **************************************************')
+
+# for single_test_cap_scores in all_aggregated_scores:
+#     myScoreB.logger.debug('===== Current Test Pcap : %s =============================' % single_test_cap_scores.test_cap_name)
+#     av_FTP_score
+#     for stat_scores_agg in single_test_cap_scores.av_stat_list:
+#         if 'http' in stat_scores_agg.ground_label:
+#
+#         elif 'ftp' in stat_scores_agg.ground_label:
+
+
+
+
+
+
+#######################################################################
 myScoreB.logger.debug('******* PREPARING TO DRAW TABLE ************************************************************')
 table_data = []
 header_row = []
 header_row.append('')
+
+#Reduce debugging messages for this section
+myScoreB.logger.setLevel(logging.WARNING)
 
 for idx_r, row_test_cap in enumerate(all_scores):
     myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row_test_cap.test_sample_pcap_name))
