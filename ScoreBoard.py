@@ -13,8 +13,8 @@ class ScoreBoard(object):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         #logger.setLevel(logging.INFO)
-        self.logger.setLevel(logging.DEBUG)
-        #self.logger.setLevel(logging.WARNING)
+        #self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.WARNING)
 
         self.handler = logging.FileHandler('scoreboard.log')
         self.handler.setLevel(logging.INFO)
@@ -125,19 +125,20 @@ class StatScore(object):
         self.score = statScore
         self.ground_label = grndLbl
 
-class TestCapStats(object):
+class SingleTestCapStatAgg(object):
 
-    def __init__(self, testCapName, aggStatList):
-        self.test_cap_name = testCapName
-        self.agg_stat_list = aggStatList
+    def __init__(self, statName, aggStatList):
+        #self.test_cap_name = testCapName
+        self.stat_name = statName
+        self.aggregated_stat_list = aggStatList
         self.FTP_score_list = None
         self.HTTP_score_list = None
 
-    # def attachScoreLists(self, groundClassLbl, scoreList):
-    #     if groundClassLbl == 'ftp':
-    #         self.FTP_score_list = scoreList
-    #     elif groundClassLbl == 'http':
-    #         self.HTTP_score_list = scoreList
+class SingleTestCapAllStats(object):
+
+    def __init__(self, testCapName, allAggStats):
+        self.test_cap_name = testCapName
+        self.all_agg_stats = allAggStats
 
 class GroundProtocolAggScore(object):
 
@@ -146,12 +147,12 @@ class GroundProtocolAggScore(object):
         self.ground_proto_class = groundProto
         self.ground_proto_score_list = groundProtocolScoresList
 
-class SingleProtoAggScore(object):
-
-    def __init__(self):
-        self.stat_name
-        self.HTTP_av_score
-        self.FTP_av_score
+# class SingleProtoAggScore(object):
+#
+#     def __init__(self):
+#         self.stat_name
+#         self.HTTP_av_score
+#         self.FTP_av_score
 
 
 myScoreB = ScoreBoard()
@@ -213,26 +214,37 @@ print("Test Group 1 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores
 print("Test Group 2 score stat 1: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].stat_name)
 print("Test Group 2 stat 1 score: ", all_scores[0].ground_truth_aggregate_scores[1].stat_scores[0].score)
 
+
+myScoreB.logger.setLevel(logging.DEBUG)
 myScoreB.logger.debug('******* AGGREGATING SCORES ************************************************************')
 
 ##############################################################
 all_aggregated_scores = []
-single_stat_score_list = []
+#single_stat_score_list = []
 for single_testcap in all_scores:
     myScoreB.logger.debug('===== Current test PCap ::::: %s ===================' % single_testcap.test_sample_pcap_name)
-    #single_testcap_stat_scores = []
-    for single_stat in myScoreB.stats_list:
-        myScoreB.logger.debug('---------- Current Stat being Aggregated : %s ------------------' % single_stat)
-        single_stat_score_list.clear() ## <-- Check
+    #single_testcap_all_stat_scores = []
+    all_stats_per_test_cap = []
+    for single_stat_name in myScoreB.stats_list:
+        myScoreB.logger.debug('---------- Current Stat being Aggregated : %s ------------------' % single_stat_name)
+        #single_stat_score_list.clear() ## <-- Check
+        single_stat_score_list = []
         for single_grndcap in single_testcap.ground_truth_aggregate_scores:
             myScoreB.logger.debug('--------------- Current Ground Truth Pcap : %s ------------------' % single_grndcap.ground_truth_label)
             for curr_stat_res in single_grndcap.stat_scores:
-                if single_stat == curr_stat_res.stat_name:
+                if single_stat_name == curr_stat_res.stat_name:
                     myScoreB.logger.debug('------------------- Stored Stat: %s -----------' % curr_stat_res.stat_name)
+                    # myScoreB.logger.debug('------------------- Stored Stat score: %s -----------' % curr_stat_res.score)
+                    # myScoreB.logger.debug('------------------- Stored Stat groundLbl: %s -----------' % curr_stat_res.ground_label)
                     single_stat_score_list.append(curr_stat_res)
                     myScoreB.logger.debug('Single stat score list curr length: %i' % len(single_stat_score_list))
-    single_testcap_stat_scores = TestCapStats(single_testcap.test_sample_pcap_name, single_stat_score_list)
-    all_aggregated_scores.append(single_testcap_stat_scores)
+        #The variable below holds all the scores for a single stat across all ground truth caps
+        single_testcap_single_stat_scores = SingleTestCapStatAgg(single_stat_name, single_stat_score_list)
+        # The variable below holds all the scores, for all the stats across all ground truths for a particular test_cap
+        all_stats_per_test_cap.append(single_testcap_single_stat_scores)
+        myScoreB.logger.debug('Number of stats measured per test cap : Curr length: %i' % len(all_stats_per_test_cap))
+        #single_testcap_all_stat_scores = SingleTestCapAllStats(single_testcap.test_sample_pcap_name, all_stats_per_test_cap)
+    all_aggregated_scores.append(SingleTestCapAllStats(single_testcap.test_sample_pcap_name, all_stats_per_test_cap))
     myScoreB.logger.debug('All Test-Cap stat aggegates Len : %i' % len(all_aggregated_scores))
 
 #myScoreB.aggregate_scores(all_scores)
@@ -242,10 +254,30 @@ myScoreB.logger.debug('Aggregated Scores: Test Cap Len: %i' % len(all_aggregated
 myScoreB.logger.debug('Test Cap 1 name: %s' % all_aggregated_scores[0].test_cap_name)
 myScoreB.logger.debug('Test Cap 2 name: %s' % all_aggregated_scores[1].test_cap_name)
 
-myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[0].agg_stat_list[0].stat_name) #Should be the same
-myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[0].agg_stat_list[0].score)
-myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[0].agg_stat_list[1].stat_name) #Should be the same as above
-myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[0].agg_stat_list[1].score)
+#myScoreB.logger.debug('Number of stats in 1st Test Cap Len: %i' % len(all_aggregated_scores))
+myScoreB.logger.debug('Number of stats in 1st Test Cap : Len: %i' % len(all_aggregated_scores[0].all_agg_stats))
+#For Test Cap '0'. get the first statistic name stored
+myScoreB.logger.debug('No. of stats scores in 1st Test Cap, in first stat aggregate Len: %i' % len(all_aggregated_scores[0].all_agg_stats))
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Test Cap Name: %s' % all_aggregated_scores[0].all_agg_stats[0].stat_name)
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Test Cap Name: %s' % all_aggregated_scores[0].all_agg_stats[1].stat_name)
+
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Stat Name 1: %s' % all_aggregated_scores[0].all_agg_stats[0].aggregated_stat_list[0].stat_name) # Same
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Score 1: %s' % all_aggregated_scores[0].all_agg_stats[0].aggregated_stat_list[0].score)
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Stat Name 2: %s' % all_aggregated_scores[0].all_agg_stats[0].aggregated_stat_list[1].stat_name) # Same
+myScoreB.logger.debug('Test Cap 1:: Stat 1 : Score 2: %s' % all_aggregated_scores[0].all_agg_stats[0].aggregated_stat_list[1].score)
+
+myScoreB.logger.debug('Test Cap 1:: Stat 2 : Stat Name 1: %s' % all_aggregated_scores[0].all_agg_stats[1].aggregated_stat_list[0].stat_name) # Diff
+myScoreB.logger.debug('Test Cap 1:: Stat 2 : Score 1: %s' % all_aggregated_scores[0].all_agg_stats[1].aggregated_stat_list[0].score)
+
+# myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[0].agg_stat_list[0].stat_name) #Should be the same[0]
+# myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[0].agg_stat_list[0].score)
+# myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[0].agg_stat_list[1].stat_name) #Should be the same as above[0]
+# myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[0].agg_stat_list[1].score)
+#
+# myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[1].agg_stat_list[0].stat_name) #Should be the same[1]
+# myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[1].agg_stat_list[0].score)
+# myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[1].agg_stat_list[1].stat_name) #Should be the same as above[1]
+# myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[1].agg_stat_list[1].score)
 
 
 ######################################################################
@@ -253,8 +285,8 @@ myScoreB.logger.debug('******* STARTING AVERAGING AND PREDICTION ***************
 
 for single_test_cap_scores in all_aggregated_scores:
     myScoreB.logger.debug('===== Current Test Pcap : %s =============================' % single_test_cap_scores.test_cap_name)
-    for stat_scores_agg in single_test_cap_scores.agg_stat_list:
-        myScoreB.logger.debug('----- Current Stat : %s ---------------------' % stat_scores_agg.stat_name)
+    # for stat_scores_agg in single_test_cap_scores.aggregated_stat_list:
+    #     myScoreB.logger.debug('----- Current Stat : %s ---------------------' % stat_scores_agg.stat_name)
 
     # agg_FTP_scores = []
     # agg_HTTP_scores = []

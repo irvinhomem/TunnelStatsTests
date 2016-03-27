@@ -33,8 +33,12 @@ class PacketAnalyzer(object):
         #self.logger.setLevel(logging.DEBUG)
         self.logger.setLevel(logging.WARNING)
 
-        self.fig = plt.figure()
-        self.ax = plt.axes()
+        # self.fig = plt.figure()
+        # self.ax = plt.axes()
+
+        self.fig = None
+        self.ax = None
+
         self.logger.debug("Finished initializing Analysis stuff ...")
         # print("Type : ", type(self.cap))
 
@@ -253,6 +257,10 @@ class PacketAnalyzer(object):
         '''
         Plot the points given from the given sequence
         '''
+
+        self.fig = plt.figure()
+        self.ax = plt.axes()
+
         #plt.plot(perPktCharEntropySeq, marker="+", markeredgecolor="red", linestyle="solid", color="blue")
         self.ax = self.fig.add_subplot(1,1,1)
         self.ax.plot(yVariable, marker="+", markeredgecolor=markercolor, linestyle="None", color="blue")
