@@ -26,7 +26,7 @@ class ScoreBoard(object):
         self.grndTruthLib_list = []
         self.testSampleLib_list = []
 
-        self.stats_list = ['Pearson','MeanDiff']
+        self.stats_list = ['SpearmanR','Pearson','MeanDiff']
         # ['Pearson']
         # ['Pearson','MeanDiff']
         # ['SpearmanR','Pearson','MeanDiff']
@@ -37,11 +37,13 @@ class ScoreBoard(object):
     def load_ground_truths(self):
         # Load GroundTruth library / base (Filtered)
         http_grndTruthLib = MetaCapLibrary()
-        http_grndTruthLib.load_specific_proto_from_base('http-test-pico','http')
+        #http_grndTruthLib.load_specific_proto_from_base('http-test-pico','http')
+        http_grndTruthLib.load_specific_proto_from_base('http-orig-single-2011','http')
         self.grndTruthLib_list.append(http_grndTruthLib)
 
         ftp_grndTruthLib = MetaCapLibrary()
-        ftp_grndTruthLib.load_specific_proto_from_base('ftp-test-pico', 'ftp')
+        #ftp_grndTruthLib.load_specific_proto_from_base('ftp-test-pico', 'ftp')
+        ftp_grndTruthLib.load_specific_proto_from_base('ftp-orig-single-2011', 'ftp')
         self.grndTruthLib_list.append(ftp_grndTruthLib)
 
         self.logger.debug("HTTP Ground Lib Len: %i " % len(http_grndTruthLib.get_packet_library()))
@@ -51,11 +53,14 @@ class ScoreBoard(object):
     def load_test_sample_pcaps(self):
         # Load Test-PCAP library / base (Filtered)
         HTovDns_testLib = MetaCapLibrary()
-        HTovDns_testLib.load_specific_proto_from_base('http-test-pico','dns')
+        #HTovDns_testLib.load_specific_proto_from_base('http-test-pico','dns')
+        HTovDns_testLib.load_specific_proto_from_base('http-test2','dns')
         self.testSampleLib_list.append(HTovDns_testLib)
 
         FTovDNS_testLib = MetaCapLibrary()
-        FTovDNS_testLib.load_specific_proto_from_base('ftp-test-pico','dns')
+        #FTovDNS_testLib.load_specific_proto_from_base('ftp-test-pico','dns')
+        #FTovDNS_testLib.load_specific_proto_from_base('ftp-test-small','dns')
+        FTovDNS_testLib.load_specific_proto_from_base('ftp-test','dns')
         self.testSampleLib_list.append(FTovDNS_testLib)
 
         self.logger.debug("HTTP Test Lib Len: %i " % len(HTovDns_testLib.get_packet_library()))
@@ -432,18 +437,13 @@ myScoreB.logger.debug('2nd stat *HTTP score*, for the 2nd test cap: %10.7f:' % a
 myScoreB.logger.debug('2nd stat *FTP score*, for the 2nd test cap: %10.7f:' % all_testcap_agg_scores[1].all_agg_stats[1].FTP_av_score)
 myScoreB.logger.debug('2nd stat *PREDICTION*, for the 2nd test cap: %s:' % all_testcap_agg_scores[1].all_agg_stats[1].predicted_protocol)
 
-
-
-
-
-
-
-
 #######################################################################
 myScoreB.logger.debug('******* PREPARING TO DRAW TABLE ************************************************************')
 table_data = []
 header_row = []
 header_row.append('')
+header_row.append('Predictions')
+header_row.append("Avg'd Scores")
 
 #Reduce debugging messages for this section
 myScoreB.logger.setLevel(logging.WARNING)
@@ -452,6 +452,17 @@ for idx_r, row_test_cap in enumerate(all_scores):
     myScoreB.logger.debug('Row: %i :: Test Cap: %s' % (idx_r, row_test_cap.test_sample_pcap_name))
     single_row = []
     single_row.append(row_test_cap.test_sample_pcap_name)
+    stat_score_string = ''
+    score_summary_string = ''
+    # Get Summary averages of stats per protocol
+    for single_test_cap_aggStats in all_testcap_agg_scores[idx_r].all_agg_stats:
+        stat_score_string += (single_test_cap_aggStats.stat_name + ':(PRED:)= ' + single_test_cap_aggStats.predicted_protocol + '\n')
+        score_summary_string += ('HTTP:' + str(round(single_test_cap_aggStats.HTTP_av_score, 4)) +
+                                 ' | FTP:' + str(round(single_test_cap_aggStats.FTP_av_score, 4)) + '\n')
+    single_row.append(stat_score_string)
+    single_row.append(score_summary_string)
+
+    # Get individual ground cap stat scores
     for idx_c, col_grnd in enumerate(row_test_cap.ground_truth_aggregate_scores):
         myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s'
                               % (idx_r, row_test_cap.test_sample_pcap_name, idx_c, col_grnd.ground_truth_label))
@@ -460,7 +471,7 @@ for idx_r, row_test_cap in enumerate(all_scores):
         score_string = ''
         for idx_3, dim3 in enumerate(col_grnd.stat_scores):
             myScoreB.logger.debug('Row: %i :: Test Cap: %s :: Col: %i :: Ground Truth Label: %s ::'
-                                  ' Stat: %i :: %s : %10.7f'
+                                  ' Stat: %i :: %s : %8.5f'
                               % (idx_r, row_test_cap.test_sample_pcap_name, idx_c, col_grnd.ground_truth_label,
                                  idx_3, dim3.stat_name, dim3.score))
             score_string += str(dim3.stat_name + ' : ' + str(dim3.score) + '\n')
@@ -475,8 +486,11 @@ myScoreB.logger.debug("Header Row Len : %i" % len(header_row))
 
 table_data.append(header_row)
 
+print('SCORES table:')
+
 myTable = AsciiTable(table_data)
 myTable.inner_row_border = True
 print(myTable.table)
 
+print('PREDICTIONS table:')
 
