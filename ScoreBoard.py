@@ -3,6 +3,7 @@ from PacketAnalyzer import PacketAnalyzer
 from PacketDigester import PacketDigester
 
 from terminaltables import AsciiTable
+import numpy as np
 import logging
 import sys
 
@@ -98,14 +99,6 @@ class ScoreBoard(object):
 
         return stat_measure_name, avg_score_to_GRND, grndtruth_cap.get_proto_label()
 
-    # def aggregateStatScores(self, grndLbl, statName, stat_score):
-    #     for idx, stat_name in enumerate(self.stats_list):
-    #         if stat_name  == statName:
-    #             scoreList = []
-    #             scoreList.append(stat_score)
-    #             single_stat_class_avg = StatClassAverage(grndLbl, stat_name)
-
-
 class TestScores(object):
 
     def __init__(self, test_sample_name, all_ground_truth_scores_list):
@@ -131,8 +124,8 @@ class SingleTestCapStatAgg(object):
         #self.test_cap_name = testCapName
         self.stat_name = statName
         self.aggregated_stat_list = aggStatList
-        self.FTP_score_list = None
-        self.HTTP_score_list = None
+        # self.FTP_score_list = None
+        # self.HTTP_score_list = None
 
 class SingleTestCapAllStats(object):
 
@@ -147,12 +140,21 @@ class GroundProtocolAggScore(object):
         self.ground_proto_class = groundProto
         self.ground_proto_score_list = groundProtocolScoresList
 
-# class SingleProtoAggScore(object):
-#
-#     def __init__(self):
-#         self.stat_name
-#         self.HTTP_av_score
-#         self.FTP_av_score
+class SingleStatAggScore(object):
+
+    def __init__(self, statName, HTTPScoreList, FTPScoreList):
+        self.stat_name = statName
+        self.HTTP_score_list = HTTPScoreList
+        self.FTP_score_list = FTPScoreList
+        self.HTTP_av_score = self.get_av_score(self.HTTP_score_list)
+        self.FTP_av_score = self.get_av_score(self.FTP_score_list)
+
+    def get_av_score(self, statscore_list):
+        scores = []
+        for statscore in statscore_list:
+            scores.append(statscore.score)
+
+        return np.average(scores)
 
 
 myScoreB = ScoreBoard()
@@ -269,28 +271,36 @@ myScoreB.logger.debug('Test Cap 1:: Stat 1 : Score 2: %s' % all_aggregated_score
 myScoreB.logger.debug('Test Cap 1:: Stat 2 : Stat Name 1: %s' % all_aggregated_scores[0].all_agg_stats[1].aggregated_stat_list[0].stat_name) # Diff
 myScoreB.logger.debug('Test Cap 1:: Stat 2 : Score 1: %s' % all_aggregated_scores[0].all_agg_stats[1].aggregated_stat_list[0].score)
 
-# myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[0].agg_stat_list[0].stat_name) #Should be the same[0]
-# myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[0].agg_stat_list[0].score)
-# myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[0].agg_stat_list[1].stat_name) #Should be the same as above[0]
-# myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[0].agg_stat_list[1].score)
-#
-# myScoreB.logger.debug('Test Cap 1:: Stat name 1: %s' % all_aggregated_scores[1].agg_stat_list[0].stat_name) #Should be the same[1]
-# myScoreB.logger.debug('Test Cap 1:: Stat score 1: %10.7f' % all_aggregated_scores[1].agg_stat_list[0].score)
-# myScoreB.logger.debug('Test Cap 1:: Stat name 2: %s' % all_aggregated_scores[1].agg_stat_list[1].stat_name) #Should be the same as above[1]
-# myScoreB.logger.debug('Test Cap 1:: Stat score 2: %10.7f' % all_aggregated_scores[1].agg_stat_list[1].score)
-
-
 ######################################################################
 myScoreB.logger.debug('******* STARTING AVERAGING AND PREDICTION **************************************************')
 
+
+all_testcap_agg_scores = []
 for single_test_cap_scores in all_aggregated_scores:
     myScoreB.logger.debug('===== Current Test Pcap : %s =============================' % single_test_cap_scores.test_cap_name)
-    # for stat_scores_agg in single_test_cap_scores.aggregated_stat_list:
-    #     myScoreB.logger.debug('----- Current Stat : %s ---------------------' % stat_scores_agg.stat_name)
+    single_test_cap_all_statAgg = []
+    for stat_scores_agg in single_test_cap_scores.all_agg_stats:
+        myScoreB.logger.debug('---------- Current Stat : %s ---------------------' % stat_scores_agg.stat_name)
+        agg_FTP_scores = []
+        agg_HTTP_scores = []
+        for stat_res in stat_scores_agg.aggregated_stat_list:
+            if 'http' in stat_res.ground_label:
+                agg_HTTP_scores.append(stat_res)
+            elif 'ftp' in stat_res.ground_label:
+                agg_FTP_scores.append(stat_res)
+            myScoreB.logger.debug('No. of HTTP scores: %i' % len(agg_HTTP_scores))
+            myScoreB.logger.debug('No. of FTP scores: %i' % len(agg_FTP_scores))
+        single_stat_agg_scores = SingleStatAggScore(stat_scores_agg.stat_name, agg_HTTP_scores, agg_FTP_scores)
+        myScoreB.logger.debug('Curr Stat average scores: %s ---: HTTP: %10.7f | FTP: %10.7f' %
+                              (single_stat_agg_scores.stat_name, single_stat_agg_scores.HTTP_av_score, single_stat_agg_scores.FTP_av_score))
+        single_test_cap_all_statAgg.append(single_stat_agg_scores)
+        myScoreB.logger.debug('Single TestCap Number of stat aggregates: %i' % len(single_test_cap_all_statAgg))
+    single_test_cap_agg_stats = SingleTestCapAllStats(single_test_cap_scores.test_cap_name,single_test_cap_all_statAgg)
+    all_testcap_agg_scores.append(single_test_cap_agg_stats)
+    myScoreB.logger.debug('No. of test caps tested: Curr Len: %i ' % len(all_testcap_agg_scores))
 
-    # agg_FTP_scores = []
-    # agg_HTTP_scores = []
-    # ground_proto_scores = []
+
+
     # for stat_scores_agg in single_test_cap_scores.agg_stat_list:
     #     if 'http' in stat_scores_agg.ground_label:
     #         agg_HTTP_scores.append(stat_scores_agg)
