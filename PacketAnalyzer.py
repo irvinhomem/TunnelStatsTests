@@ -2,7 +2,7 @@
 # from collections import Counter, namedtuple
 
 from scipy.stats import kstest
-from scipy.stats import entropy, spearmanr, pearsonr, ks_2samp
+from scipy.stats import entropy, spearmanr, pearsonr, ks_2samp, anderson_ksamp, kendalltau
 from scipy.spatial.distance import correlation, euclidean, minkowski, mahalanobis
 
 import matplotlib.pyplot as plt
@@ -28,6 +28,7 @@ class PacketAnalyzer(object):
     def __init__(self):
         '''Do initialization stuff'''
 
+        #logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         #self.logger.setLevel(logging.INFO)
         #self.logger.setLevel(logging.DEBUG)
@@ -118,6 +119,11 @@ class PacketAnalyzer(object):
         self.logger.debug("Grnd Truth Pop Length: %i" % len(testPopulationSeqs['grndTruthSeq']))
 
         for i in range(sampling_rounds):
+            twoPopSeq = None
+            # Anderson Darling doesn't seem to need equal length samples
+            if(stat_measure == 'Anderson_kSamp'):
+                twoPopSeq = testPopulationSeqs
+            #Get equal length samples
             twoSamples = self.getTwoEquiLenSamples(testPopulationSeqs['testSeq'], testPopulationSeqs['grndTruthSeq'])
             # Check which statistical measure we are calculating
             # print("Round: ", i)
@@ -145,6 +151,15 @@ class PacketAnalyzer(object):
                 runningSum.append(self.calcStdDevDiff(twoSamples))
                 #runningSum += self.calcPearson()
                 continue
+            elif stat_measure == "KendallTau":
+                runningSum.append(self.calcKendallTau(twoSamples))
+                #runningSum += self.calcPearson()
+                continue
+            elif stat_measure == "Anderson_kSamp":
+                runningSum.append(self.calcAnderson_ksamp(twoPopSeq))
+                #runningSum += self.calcPearson()
+                continue
+
 
         #avg =  runningSum/sampling_rounds
         avg = np.average(runningSum)
@@ -237,7 +252,7 @@ class PacketAnalyzer(object):
 
     def calcAvgMinMaxDiff(self, twoSamples):
         avgMinMaxDiff = 0
-        if len(twoSamples['testSeq']) > 4 and len(twoSamples['grndTruthSeq']>4):
+        if len(twoSamples['testSeq']) > 4 and len(twoSamples['grndTruthSeq'])>4:
             avg5max_test = heapq.nlargest(5, twoSamples['testSeq'])
             avg5min_test = heapq.nsmallest(5, twoSamples['testSeq'])
 
@@ -246,6 +261,23 @@ class PacketAnalyzer(object):
 
             avgMinMaxDiff = abs(avg5max_test-avg5min_test) - abs(avg5max_grnd-avg5min_grnd)
         return avgMinMaxDiff
+
+    def calcKendallTau(self,twoSamples):
+
+        kendall_t = kendalltau(twoSamples["testSeq"], twoSamples["grndTruthSeq"])
+
+        return kendall_t
+
+    def calcAnderson_ksamp(self, twoSamples):
+        self.logger.debug('IN calcAnderson_ksamp: Test Seq Len: %i' % len(twoSamples['testSeq']))
+        self.logger.debug('IN calcAnderson_ksamp: Grnd Truth Seq Len: %i' % len(twoSamples['grndTruthSeq']))
+        sampleArrayList = []
+        #sampleArrayList.append(twoSamples['grndTruthSeq'])
+        sampleArrayList.append(twoSamples['testSeq'])
+        sampleArrayList.append(twoSamples['grndTruthSeq'])
+
+        anderson_kstat, critical_val, significance = anderson_ksamp(sampleArrayList)
+        return anderson_kstat
 
     def calcMahalanobis(self, twoSamples):
         inv_vector =[]

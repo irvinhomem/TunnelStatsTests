@@ -4,6 +4,10 @@ from MetaCapLibrary import MetaCapLibrary
 from PacketDigester import PacketDigester
 from terminaltables import AsciiTable
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 # Collect Packet Captures to Analyze
 # HTTP Base (HTTP Ground Truth)
 httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap", 'http')
@@ -105,8 +109,19 @@ pearson_avg_score = calcAvgStatScores("Pearson")
 ksmirnov_2samp_score = calcAvgStatScores("2Samp_KSmirnov")
 meanDiff_score = calcAvgStatScores("MeanDiff")
 stdDevDiff_score = calcAvgStatScores("StdDevDiff")
+kendalltau_score = calcAvgStatScores('KendallTau')
+anderson_kSamp_score = None
 bhattacharya_avg_score = ''
 mahalanobis_avg_score = ''
+try:
+    anderson_kSamp_score = calcAvgStatScores("Anderson_kSamp")  # Throws overflow error for some sets
+except Exception as e:
+    logger.debug('Error with Anderson-kSamp: %s' % str(e))
+    logger.debug('Error with Anderson-kSamp: %s' % repr(e))
+    anderson_kSamp_score = []
+    anderson_kSamp_score.append(0.0)
+    anderson_kSamp_score.append(0.0)
+
 
 klDiv_res = simple_predictor(kl_div_avg_score, "KL-Divergence")
 spearmanr_res = simple_predictor(spearmanr_avg_score, "SpearmanR")
@@ -118,16 +133,17 @@ bhattacharya_res = ''
 mahalanobis_res = ''
 
 table_data = [
-    ['Protocol/Stat','KL-Div','SpearmanR', 'Pearson', 'KSmirnov-2Samp', 'MeanDiff', 'Std-Dev-Diff',
+    ['Protocol/Stat','KL-Div','SpearmanR', 'Pearson', 'KSmirnov-2Samp', 'MeanDiff', 'KendallTau', 'Anderson-kSamp','Std-Dev-Diff',
      'Bhattacharya', 'Mahalanobis'],
     ['Against HTTP: ', str(kl_div_avg_score[0]), str(spearmanr_avg_score[0]), str(pearson_avg_score[0]),
-     str(ksmirnov_2samp_score[0]), str(meanDiff_score[0]), str(stdDevDiff_score[0]), str(''), str('')],
+     str(ksmirnov_2samp_score[0]), str(meanDiff_score[0]), str(kendalltau_score[0]), str(anderson_kSamp_score[0]), str(stdDevDiff_score[0]), str(''), str('')],
     ['Against FTP: ', str(kl_div_avg_score[1]), str(spearmanr_avg_score[1]), str(pearson_avg_score[1]),
-     str(ksmirnov_2samp_score[1]), str(meanDiff_score[1]), str(stdDevDiff_score[1]), str(''), str('')],
+     str(ksmirnov_2samp_score[1]), str(meanDiff_score[1]), str(kendalltau_score[1]), str(anderson_kSamp_score[1]), str(stdDevDiff_score[1]), str(''), str('')],
     ['Difference: ', str(kl_div_avg_score[0] - kl_div_avg_score[1]), str(spearmanr_avg_score[0]- spearmanr_avg_score[1]),
      str(pearson_avg_score[0] - pearson_avg_score[1]), str(ksmirnov_2samp_score[0] - ksmirnov_2samp_score[1]),
-     str(meanDiff_score[0] - meanDiff_score[1]), str(stdDevDiff_score[0] - stdDevDiff_score[1]), str(''), str('')],
-    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, meanDiff_res, str(''),
+     str(meanDiff_score[0] - meanDiff_score[1]), str(kendalltau_score[0] - kendalltau_score[1]), str(''),
+     str(stdDevDiff_score[0] - stdDevDiff_score[1]), str(''), str('')],
+    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, meanDiff_res, str(''), str(''), str(''),
      bhattacharya_res, mahalanobis_res]
 ]
 myTable = AsciiTable(table_data)

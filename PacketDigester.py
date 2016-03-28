@@ -11,8 +11,9 @@ class PacketDigester(object):
     def __init__(self):
         '''Do initialization stuff'''
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.INFO)
         #self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.WARNING)
 
         # self.pcapPath = pcapFilePath
         #self.metapcap = packet_capture

@@ -26,11 +26,12 @@ class ScoreBoard(object):
         self.grndTruthLib_list = []
         self.testSampleLib_list = []
 
-        self.stats_list = ['SpearmanR','Pearson','MeanDiff']
+        self.stats_list = ['SpearmanR','Pearson','MeanDiff','KendallTau']
         # ['Pearson']
         # ['Pearson','MeanDiff']
         # ['SpearmanR','Pearson','MeanDiff']
-        # ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff']
+        #['SpearmanR','Pearson','MeanDiff','KendallTau']
+        # ['KL-Divergence','SpearmanR','Pearson','2Samp_KSmirnov','MeanDiff', 'KendallTau']
         #self.scoreDict = dict(stat_measure='', av_score=0.0, grndLabel='')
         self.testScoreList = []
 
@@ -189,6 +190,11 @@ class SingleStatAggScore(object):
                 predictedProto = 'HTTP'
             else:
                 predictedProto = 'FTP'
+        elif stat_name == "KendallTau":
+            if abs(self.HTTP_av_score) < abs(self.FTP_av_score):
+                predictedProto = 'HTTP'
+            else:
+                predictedProto = 'FTP'
         # elif stat_measure == "StdDevDiff":
         #     if abs(score_result[0]) < abs(score_result[1]):
         #         return 'HTTP'
@@ -211,6 +217,7 @@ class SingleStatAggScore(object):
         #         return 'FTP'
         else:
             print("Undefined Stat Measure: ", stat_name)
+            predictedProto = 'unknown'
 
         return predictedProto
 
