@@ -148,6 +148,7 @@ class SingleStatAggScore(object):
         self.FTP_score_list = FTPScoreList
         self.HTTP_av_score = self.get_av_score(self.HTTP_score_list)
         self.FTP_av_score = self.get_av_score(self.FTP_score_list)
+        self.predicted_protocol = self.simple_aggregate_predictor()
 
     def get_av_score(self, statscore_list):
         scores = []
@@ -155,6 +156,110 @@ class SingleStatAggScore(object):
             scores.append(statscore.score)
 
         return np.average(scores)
+
+    def simple_aggregate_predictor(self):
+        predictedProto = ''
+        if self.stat_name == "KL-Divergence":
+            if self.HTTP_av_score < self.FTP_av_score:
+                predictedProto = 'HT'
+            else:
+                predictedProto = 'FT'
+        elif stat_name == "SpearmanR":
+            if abs(self.HTTP_av_score) < abs(self.FTP_av_score):
+                predictedProto = 'HTTP'
+            else:
+                predictedProto = 'FTP'
+        elif stat_name == "Pearson":
+            if abs(self.HTTP_av_score) < abs(self.FTP_av_score):
+                predictedProto = 'HTTP'
+            else:
+                predictedProto = 'FTP'
+        elif stat_name == "2Samp_KSmirnov":
+            if abs(self.HTTP_av_score) < abs(self.FTP_av_score):
+                predictedProto = 'HT'
+            else:
+                predictedProto = 'FT'
+        elif stat_name == "MeanDiff":
+            if abs(self.HTTP_av_score) < abs(self.FTP_av_score):
+                predictedProto = 'HTTP'
+            else:
+                predictedProto = 'FTP'
+        # elif stat_measure == "StdDevDiff":
+        #     if abs(score_result[0]) < abs(score_result[1]):
+        #         return 'HTTP'
+        #     else:
+        #         return 'FTP'
+        # elif stat_measure == "Bhatta":
+        #     if abs(score_result[0]) < abs(score_result[1]):
+        #         return 'HTTP'
+        #     else:
+        #         return 'FTP'
+        # elif stat_measure == "Hellinger":
+        #     if abs(score_result[0]) < abs(score_result[1]):
+        #         return 'HTTP'
+        #     else:
+        #         return 'FTP'
+        # elif stat_measure == "Mahalanobis":
+        #     if abs(score_result[0]) < abs(score_result[1]):
+        #         return 'HTTP'
+        #     else:
+        #         return 'FTP'
+        else:
+            print("Undefined Stat Measure: ", stat_name)
+
+        return predictedProto
+
+    # def simple_aggregate_predictor(self, stat_name, singleStatAggScores):
+    #     predictedProto = ''
+    #     if stat_name == "KL-Divergence":
+    #         if singleStatAggScores.HTTP_av_score < singleStatAggScores.FTP_av_score:
+    #             predictedProto = 'HT'
+    #         else:
+    #             predictedProto = 'FT'
+    #     elif stat_name == "SpearmanR":
+    #         if abs(singleStatAggScores.HTTP_av_score) < abs(singleStatAggScores.FTP_av_score):
+    #             predictedProto = 'HTTP'
+    #         else:
+    #             predictedProto = 'FTP'
+    #     elif stat_name == "Pearson":
+    #         if abs(singleStatAggScores.HTTP_av_score) < abs(singleStatAggScores.FTP_av_score):
+    #             predictedProto = 'HTTP'
+    #         else:
+    #             predictedProto = 'FTP'
+    #     elif stat_name == "2Samp_KSmirnov":
+    #         if abs(singleStatAggScores.HTTP_av_score) < abs(singleStatAggScores.FTP_av_score):
+    #             predictedProto = 'HT'
+    #         else:
+    #             predictedProto = 'FT'
+    #     elif stat_name == "MeanDiff":
+    #         if abs(singleStatAggScores.HTTP_av_score) < abs(singleStatAggScores.FTP_av_score):
+    #             predictedProto = 'HTTP'
+    #         else:
+    #             predictedProto = 'FTP'
+    #     # elif stat_measure == "StdDevDiff":
+    #     #     if abs(score_result[0]) < abs(score_result[1]):
+    #     #         return 'HTTP'
+    #     #     else:
+    #     #         return 'FTP'
+    #     # elif stat_measure == "Bhatta":
+    #     #     if abs(score_result[0]) < abs(score_result[1]):
+    #     #         return 'HTTP'
+    #     #     else:
+    #     #         return 'FTP'
+    #     # elif stat_measure == "Hellinger":
+    #     #     if abs(score_result[0]) < abs(score_result[1]):
+    #     #         return 'HTTP'
+    #     #     else:
+    #     #         return 'FTP'
+    #     # elif stat_measure == "Mahalanobis":
+    #     #     if abs(score_result[0]) < abs(score_result[1]):
+    #     #         return 'HTTP'
+    #     #     else:
+    #     #         return 'FTP'
+    #     else:
+    #         print("Undefined Stat Measure: ", stat_name)
+    #
+    #     return predictedProto
 
 
 myScoreB = ScoreBoard()
@@ -291,26 +396,43 @@ for single_test_cap_scores in all_aggregated_scores:
             myScoreB.logger.debug('No. of HTTP scores: %i' % len(agg_HTTP_scores))
             myScoreB.logger.debug('No. of FTP scores: %i' % len(agg_FTP_scores))
         single_stat_agg_scores = SingleStatAggScore(stat_scores_agg.stat_name, agg_HTTP_scores, agg_FTP_scores)
-        myScoreB.logger.debug('Curr Stat average scores: %s ---: HTTP: %10.7f | FTP: %10.7f' %
-                              (single_stat_agg_scores.stat_name, single_stat_agg_scores.HTTP_av_score, single_stat_agg_scores.FTP_av_score))
+        myScoreB.logger.debug('Curr Stat average scores: %s ---: HTTP: %10.7f | FTP: %10.7f :: PREDICTION: %s'  %
+                              (single_stat_agg_scores.stat_name, single_stat_agg_scores.HTTP_av_score, single_stat_agg_scores.FTP_av_score,
+                               single_stat_agg_scores.predicted_protocol))
         single_test_cap_all_statAgg.append(single_stat_agg_scores)
         myScoreB.logger.debug('Single TestCap Number of stat aggregates: %i' % len(single_test_cap_all_statAgg))
     single_test_cap_agg_stats = SingleTestCapAllStats(single_test_cap_scores.test_cap_name,single_test_cap_all_statAgg)
     all_testcap_agg_scores.append(single_test_cap_agg_stats)
     myScoreB.logger.debug('No. of test caps tested: Curr Len: %i ' % len(all_testcap_agg_scores))
 
+myScoreB.logger.debug('******** Testing AVERAGING OUTCOMES *******************************************')
+myScoreB.logger.debug('Test Cap 1: %s' % all_testcap_agg_scores[0].test_cap_name)
+myScoreB.logger.debug('Test Cap 1: %s' % all_testcap_agg_scores[1].test_cap_name)
+
+myScoreB.logger.debug('No. of stats measure for the 1st test cap: %i:' % len(all_testcap_agg_scores[0].all_agg_stats))
+myScoreB.logger.debug('No. of stats measure for the 2st test cap: %i:' % len(all_testcap_agg_scores[1].all_agg_stats))
+
+myScoreB.logger.debug('1st stat Name, for the 1st test cap: %s:' % all_testcap_agg_scores[0].all_agg_stats[0].stat_name)
+myScoreB.logger.debug('1st stat *HTTP score*, for the 1st test cap: %10.7f:' % all_testcap_agg_scores[0].all_agg_stats[0].HTTP_av_score)
+myScoreB.logger.debug('1st stat *FTP score*, for the 1st test cap: %10.7f:' % all_testcap_agg_scores[0].all_agg_stats[0].FTP_av_score)
+myScoreB.logger.debug('1st stat PREDICTION*, for the 1st test cap: %s:' % all_testcap_agg_scores[0].all_agg_stats[0].predicted_protocol)
+
+myScoreB.logger.debug('2nd stat Name, for the 1st test cap: %s:' % all_testcap_agg_scores[0].all_agg_stats[1].stat_name)
+myScoreB.logger.debug('2nd stat *HTTP score*, for the 1st test cap: %10.7f:' % all_testcap_agg_scores[0].all_agg_stats[1].HTTP_av_score)
+myScoreB.logger.debug('2nd stat *FTP score*, for the 1st test cap: %10.7f:' % all_testcap_agg_scores[0].all_agg_stats[1].FTP_av_score)
+myScoreB.logger.debug('2nd stat *PREDICTION*, for the 1st test cap: %s:' % all_testcap_agg_scores[0].all_agg_stats[1].predicted_protocol)
+
+myScoreB.logger.debug('1st stat Name, for the 2nd test cap: %s:' % all_testcap_agg_scores[1].all_agg_stats[0].stat_name)
+myScoreB.logger.debug('1st stat *HTTP score*, for the 2nd test cap: %10.7f:' % all_testcap_agg_scores[1].all_agg_stats[0].HTTP_av_score)
+myScoreB.logger.debug('1st stat *FTP score*, for the 2nd test cap: %10.7f:' % all_testcap_agg_scores[1].all_agg_stats[0].FTP_av_score)
+myScoreB.logger.debug('1st stat *PREDICTION*, for the 2nd test cap: %s:' % all_testcap_agg_scores[1].all_agg_stats[0].predicted_protocol)
+
+myScoreB.logger.debug('2nd stat Name, for the 2nd test cap: %s:' % all_testcap_agg_scores[1].all_agg_stats[1].stat_name)
+myScoreB.logger.debug('2nd stat *HTTP score*, for the 2nd test cap: %10.7f:' % all_testcap_agg_scores[1].all_agg_stats[1].HTTP_av_score)
+myScoreB.logger.debug('2nd stat *FTP score*, for the 2nd test cap: %10.7f:' % all_testcap_agg_scores[1].all_agg_stats[1].FTP_av_score)
+myScoreB.logger.debug('2nd stat *PREDICTION*, for the 2nd test cap: %s:' % all_testcap_agg_scores[1].all_agg_stats[1].predicted_protocol)
 
 
-    # for stat_scores_agg in single_test_cap_scores.agg_stat_list:
-    #     if 'http' in stat_scores_agg.ground_label:
-    #         agg_HTTP_scores.append(stat_scores_agg)
-    #     elif 'ftp' in stat_scores_agg.ground_label:
-    #         agg_FTP_scores.append(stat_scores_agg)
-    # http_scores = GroundProtocolAggScore('http', agg_HTTP_scores)
-    # ftp_scores = GroundProtocolAggScore('ftp', agg_FTP_scores)
-    # single_test_cap_scores.attach
-    #
-    #     ground_proto_scores.append()
 
 
 
