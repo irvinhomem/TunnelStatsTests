@@ -40,14 +40,15 @@ class ScoreBoard(object):
         http_grndTruthLib = MetaCapLibrary()
         #http_grndTruthLib.load_specific_proto_from_base('http-test-pico','http')
         #http_grndTruthLib.load_specific_proto_from_base('http-test-small2','http')
-        #http_grndTruthLib.load_specific_proto_from_base('http-orig-single-2011','http')
-        http_grndTruthLib.load_specific_proto_from_base('http-single-2016','http')
+        http_grndTruthLib.load_specific_proto_from_base('http-orig-single-2011','http')
+        #http_grndTruthLib.load_specific_proto_from_base('http-single-2016','http')
         self.grndTruthLib_list.append(http_grndTruthLib)
 
         ftp_grndTruthLib = MetaCapLibrary()
         #ftp_grndTruthLib.load_specific_proto_from_base('ftp-test-pico', 'ftp')
         #ftp_grndTruthLib.load_specific_proto_from_base('ftp-test-small', 'ftp')
         ftp_grndTruthLib.load_specific_proto_from_base('ftp-orig-single-2011', 'ftp')
+        #ftp_grndTruthLib.load_specific_proto_from_base('ftp-single-2016', 'ftp')
         self.grndTruthLib_list.append(ftp_grndTruthLib)
 
         self.logger.debug("HTTP Ground Lib Len: %i " % len(http_grndTruthLib.get_packet_library()))
