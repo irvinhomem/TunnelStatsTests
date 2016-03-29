@@ -256,8 +256,8 @@ class MetaCapLibrary(object):
 #ftpOvDnsCapLib = MetaCapLibrary()
 
 # ####### Load a CapLibrary from the PCAP files  #############################
-#httpCapLib.load_pcaps_from_files('http')
-#ftpCapLib.load_pcaps_from_files('ftp')
+# #httpCapLib.load_pcaps_from_files('http')
+# #ftpCapLib.load_pcaps_from_files('ftp')
 
 # ####### Load a CapLibrary from the 'base' location and filter according to the given filter  ###############
 #httpCapLib.load_specific_proto_from_base('http')

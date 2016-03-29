@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 # Collect Packet Captures to Analyze
 # HTTP Base (HTTP Ground Truth)
+#httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap", 'http')
 httpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTP.pcap", 'http')
 # httpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/HTTPoverDNS.pcap")
 
 ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap", 'ftp')
+#ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-Audio/FTP-Audio2-dl-Mp3.pcapng", 'ftp')
 # ftpOvrDnsMetaCap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap")
 
 # Test Sample (**Stuff Tunnelled over DNS**):
@@ -23,8 +25,9 @@ ftpMcap = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTP.pcap", '
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/HTTP/craigslist.org/craigslist.org-2016-02-25-T185633-HTovDNS-incog.pcapng", 'http')
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2011/FTPoverDNS.pcap", 'ftp')
 #x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile-dl-small.pcapng", 'ftp')
-x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile2-dl-Big.pcapng", 'ftp')
-#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PDF/FTovDNS-PDF-dl-Big.pcapng", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PlainTxT/FTovDNS-TextFile2-dl-Big.pcapng", 'ftp')
+#x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-Audio/FTP-Audio2-dl-Mp3.pcapng", 'ftp')
+x_over_DnsTun = MetaPacketCap("../scapy_tutorial/NewPcaps/TunnelCaps_2016/FTP/FTP-PDF/FTovDNS-PDF-dl-Big.pcapng", 'ftp')
 
 
 print("Pcaps Loaded and Initialized ... ")
@@ -79,6 +82,11 @@ def simple_predictor(score_result, stat_measure):
             return 'HTTP'
         else:
             return 'FTP'
+    elif stat_measure == "KendallTau":
+        if abs(score_result[0]) < abs(score_result[1]):
+            return 'HTTP'
+        else:
+            return 'FTP'
     elif stat_measure == "StdDevDiff":
         if abs(score_result[0]) < abs(score_result[1]):
             return 'HTTP'
@@ -128,6 +136,7 @@ spearmanr_res = simple_predictor(spearmanr_avg_score, "SpearmanR")
 pearson_res = simple_predictor(pearson_avg_score, "Pearson")
 ksimrnov_2samp_res = simple_predictor(ksmirnov_2samp_score, "2Samp_KSmirnov")
 meanDiff_res = simple_predictor(meanDiff_score, "MeanDiff")
+kendalltau_res = simple_predictor(kendalltau_score, "KendallTau")
 stdDevDiff_res = simple_predictor(stdDevDiff_score, "StdDevDiff")
 bhattacharya_res = ''
 mahalanobis_res = ''
@@ -143,7 +152,7 @@ table_data = [
      str(pearson_avg_score[0] - pearson_avg_score[1]), str(ksmirnov_2samp_score[0] - ksmirnov_2samp_score[1]),
      str(meanDiff_score[0] - meanDiff_score[1]), str(kendalltau_score[0] - kendalltau_score[1]), str(''),
      str(stdDevDiff_score[0] - stdDevDiff_score[1]), str(''), str('')],
-    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, meanDiff_res, str(''), str(''), str(''),
+    ['Prediction: ', klDiv_res, spearmanr_res, pearson_res, ksimrnov_2samp_res, meanDiff_res, kendalltau_res, str(''), str(''),
      bhattacharya_res, mahalanobis_res]
 ]
 myTable = AsciiTable(table_data)

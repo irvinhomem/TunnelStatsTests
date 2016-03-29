@@ -161,7 +161,11 @@ class SingleStatAggScore(object):
     def get_av_score(self, statscore_list):
         scores = []
         for statscore in statscore_list:
-            scores.append(statscore.score)
+            try:
+                number_test = float(statscore.score)
+            except:
+                number_test = 0.0
+            scores.append(number_test)
 
         return np.average(scores)
 
