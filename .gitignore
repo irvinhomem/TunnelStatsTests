@@ -45,7 +45,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-.gitignore
+#.gitignore
 .idea/
 __pycache__/
 base_loc_config.conf
